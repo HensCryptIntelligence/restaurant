@@ -1,8 +1,7 @@
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `fullname` VARCHAR(255),
-  `password_hash` VARCHAR(255),
-  `role` ENUM('customer','admin'),
-  `created_at` DATETIME,
-  PRIMARY KEY (`id`)
+CREATE TABLE users (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(150) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('customer','admin') NOT NULL DEFAULT 'customer',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
