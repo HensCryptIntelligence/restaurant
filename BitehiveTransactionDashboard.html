@@ -3,45 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bitehive — Transaction UI (Fixed Sidebar)</title>
+  <title>Bitehive — Transaction UI</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="transaction1.css">
 </head>
 <body>
   <div class="app">
+
+    <!-- SIDEBAR -->
     <aside class="sidebar" aria-label="Sidebar navigation">
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
 
-        <nav class="nav" role="navigation">
-          <button class="nav-item">
-            <span class="icon">🏠</span>
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+          <!-- Dashboard -->
+          <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
+            <span class="icon" style="-webkit-mask-image: url('icon/layout-dashboard.png'); mask-image: url('icon/layout-dashboard.png');"></span>
             <span class="label">Dashboard</span>
           </button>
 
-          <button class="nav-item">
-            <span class="icon">🧾</span>
+          <!-- Order -->
+          <button class="nav-item" id="nav-order" aria-label="Order" data-target="order">
+            <span class="icon" style="-webkit-mask-image: url('icon/chart-pie.png'); mask-image: url('icon/chart-pie.png');"></span>
             <span class="label">Order</span>
           </button>
 
-          <button class="nav-item">
-            <span class="icon">📅</span>
+          <!-- Reservation -->
+          <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
+            <span class="icon" style="-webkit-mask-image: url('icon/calendar-arrow-up.png'); mask-image: url('icon/calendar-arrow-up.png');"></span>
             <span class="label">Reservation</span>
           </button>
 
-          <button class="nav-item active">
-            <span class="icon">💳</span>
+          <!-- Transaction -->
+          <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
+            <span class="icon" style="-webkit-mask-image: url('icon/arrow-left-right.png'); mask-image: url('icon/arrow-left-right.png');"></span>
             <span class="label">Transaction</span>
           </button>
         </nav>
       </div>
 
       <div class="sidebar-bottom">
-        <button class="logout">⟲ Logout</button>
+        <button class="logout" aria-label="Logout"
+          style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
       </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
       <div class="main-inner">
         <header class="topbar">
@@ -57,21 +65,20 @@
         </header>
 
         <section class="controls">
-          <div class="tabs">
-            <button class="tab active" data-filter="all">All</button>
-            <button class="tab" data-filter="completed">Completed</button>
-            <button class="tab" data-filter="cancelled">Cancelled</button>
+          <div class="tabs" role="tablist" aria-label="Filter transactions">
+            <button class="tab active" data-filter="all" role="tab">All</button>
+            <button class="tab" data-filter="completed" role="tab">Completed</button>
+            <button class="tab" data-filter="cancelled" role="tab">Cancelled</button>
           </div>
 
           <div class="search-wrapper">
-            <input id="search" placeholder="Search a name, order or etc" />
+            <input id="search" placeholder="Search a name, order or etc" aria-label="Search"/>
             <button class="search-btn" aria-label="search">🔍</button>
           </div>
         </section>
 
         <section id="cards" class="cards-grid" aria-live="polite">
-          <!-- cards (static demo) -->
-          <!-- Duplicate cards to create grid -->
+          <!-- sample card -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">01</div>
@@ -91,119 +98,16 @@
               <hr />
 
               <div class="items">
-                <div class="items-header">
-                  <div>Serial Items</div>
-                  <div>Qty</div>
-                </div>
-
-                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
-              </div>
-
-              <hr />
-
-              <div class="total">
-                <div>Total Price</div>
-                <div>IDR 3.300.000.00</div>
-              </div>
-
-              <button class="viewall">View All</button>
-            </div>
-          </article>
-
-          <!-- copy more cards for layout -->
-          <article class="card" data-status="completed">
-            <div class="card-header">
-              <div class="badge">02</div>
-              <div class="meta">
-                <div class="name">Watson Joyce</div>
-                <div class="order">Order #002</div>
-              </div>
-              <div class="status">✓ Completed</div>
-            </div>
-            <div class="card-body">
-              <div class="row info"><div>Wednesday, 28, 2024</div><div>4 : 48 PM</div></div>
-              <hr />
-              <div class="items">
                 <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
                 <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
                 <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
                 <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
               </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 3.300.000.00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
 
-          <article class="card" data-status="completed">
-            <div class="card-header">
-              <div class="badge">03</div>
-              <div class="meta">
-                <div class="name">Watson Joyce</div>
-                <div class="order">Order #002</div>
-              </div>
-              <div class="status">✓ Completed</div>
-            </div>
-            <div class="card-body">
-              <div class="row info"><div>Wednesday, 28, 2024</div><div>4 : 48 PM</div></div>
               <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 3.300.000.00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
 
-          <article class="card" data-status="completed">
-            <div class="card-header">
-              <div class="badge">04</div>
-              <div class="meta">
-                <div class="name">Watson Joyce</div>
-                <div class="order">Order #002</div>
-              </div>
-              <div class="status">✓ Completed</div>
-            </div>
-            <div class="card-body">
-              <div class="row info"><div>Wednesday, 28, 2024</div><div>4 : 48 PM</div></div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 3.300.000.00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
 
-          <article class="card" data-status="cancelled">
-            <div class="card-header">
-              <div class="badge">05</div>
-              <div class="meta">
-                <div class="name">Alex Doe</div>
-                <div class="order">Order #010</div>
-              </div>
-              <div class="status cancelled">✕ Cancelled</div>
-            </div>
-            <div class="card-body">
-              <div class="row info"><div>Thursday, 29, 2024</div><div>5 : 00 PM</div></div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Chicken Sandwich</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Orange Juice</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 120.000.00</div></div>
               <button class="viewall">View All</button>
             </div>
           </article>
@@ -212,38 +116,57 @@
     </main>
   </div>
 
-  <!-- JavaScript (in HTML - simple filtering + search) -->
   <script>
-    const tabs = document.querySelectorAll('.tab');
-    const cards = document.querySelectorAll('.card');
-    const search = document.getElementById('search');
+    // NAV active toggle (klik maka aktif) — membuat icon+label jadi biru
+    (function () {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          // remove active from all
+          navItems.forEach(i => i.classList.remove('active'));
+          // set active to clicked
+          item.classList.add('active');
 
-    tabs.forEach(t => t.addEventListener('click', () => {
-      tabs.forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
-      const filter = t.dataset.filter;
-      filterCards(filter, search.value);
-    }));
-
-    search.addEventListener('input', (e) => {
-      const activeTab = document.querySelector('.tab.active').dataset.filter;
-      filterCards(activeTab, e.target.value);
-    });
-
-    function filterCards(filter, q) {
-      q = (q || '').toLowerCase().trim();
-      cards.forEach(card => {
-        const status = card.dataset.status || 'all';
-        const name = card.querySelector('.name')?.textContent.toLowerCase() || '';
-        const order = card.querySelector('.order')?.textContent.toLowerCase() || '';
-        const matchesFilter = (filter === 'all') || (status === filter);
-        const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
-        card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+          // update ARIA and main title (opsional)
+          navItems.forEach(i => i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false'));
+          const label = item.querySelector('.label')?.textContent || '';
+          document.querySelector('.title') && (document.querySelector('.title').textContent = label);
+        });
       });
-    }
+    })();
 
-    // initial
-    filterCards('all', '');
+    // simple filter/search (sama seperti sebelumnya)
+    (function () {
+      const tabs = document.querySelectorAll('.tab');
+      const cards = document.querySelectorAll('.card');
+      const search = document.getElementById('search');
+
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        filterCards(t.dataset.filter, search.value);
+      }));
+
+      search.addEventListener('input', (e) => {
+        const activeTab = document.querySelector('.tab.active').dataset.filter;
+        filterCards(activeTab, e.target.value);
+      });
+
+      function filterCards(filter, q) {
+        q = (q || '').toLowerCase().trim();
+        cards.forEach(card => {
+          const status = card.dataset.status || 'all';
+          const name = card.querySelector('.name')?.textContent.toLowerCase() || '';
+          const order = card.querySelector('.order')?.textContent.toLowerCase() || '';
+          const matchesFilter = (filter === 'all') || (status === filter);
+          const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
+          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+        });
+      }
+
+      // initial
+      filterCards('all', '');
+    })();
   </script>
 </body>
 </html>
