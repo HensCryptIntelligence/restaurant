@@ -17,25 +17,21 @@
         <div class="brand">Bitehive</div>
 
         <nav class="nav" role="navigation" aria-label="Main navigation">
-          <!-- Dashboard -->
           <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
             <span class="icon" style="-webkit-mask-image: url('icon/layout-dashboard.png'); mask-image: url('icon/layout-dashboard.png');"></span>
             <span class="label">Dashboard</span>
           </button>
 
-          <!-- Order -->
           <button class="nav-item" id="nav-order" aria-label="Order" data-target="order">
             <span class="icon" style="-webkit-mask-image: url('icon/chart-pie.png'); mask-image: url('icon/chart-pie.png');"></span>
             <span class="label">Order</span>
           </button>
 
-          <!-- Reservation -->
           <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
             <span class="icon" style="-webkit-mask-image: url('icon/calendar-arrow-up.png'); mask-image: url('icon/calendar-arrow-up.png');"></span>
             <span class="label">Reservation</span>
           </button>
 
-          <!-- Transaction -->
           <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
             <span class="icon" style="-webkit-mask-image: url('icon/arrow-left-right.png'); mask-image: url('icon/arrow-left-right.png');"></span>
             <span class="label">Transaction</span>
@@ -45,7 +41,7 @@
 
       <div class="sidebar-bottom">
         <button class="logout" aria-label="Logout"
-          style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
+        style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
       </div>
     </aside>
 
@@ -66,19 +62,23 @@
 
         <section class="controls">
           <div class="tabs" role="tablist" aria-label="Filter transactions">
-            <button class="tab active" data-filter="all" role="tab">All</button>
-            <button class="tab" data-filter="completed" role="tab">Completed</button>
-            <button class="tab" data-filter="cancelled" role="tab">Cancelled</button>
+            <button class="tab active" data-filter="all">All</button>
+            <button class="tab" data-filter="completed">Completed</button>
+            <button class="tab" data-filter="cancelled">Cancelled</button>
           </div>
 
           <div class="search-wrapper">
-            <input id="search" placeholder="Search a name, order or etc" aria-label="Search"/>
-            <button class="search-btn" aria-label="search">🔍</button>
+            <div class="search-container">
+              <input id="search" placeholder="Search a name, order or etc" aria-label="Search"/>
+              <div id="search-history" class="search-history"></div>
+            </div>
+            <button class="search-btn" aria-label="search"></button>
           </div>
         </section>
 
-        <section id="cards" class="cards-grid" aria-live="polite">
-          <!-- sample card -->
+        <section id="cards" class="cards-grid">
+          
+          <!-- CARD SAMPLE -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">01</div>
@@ -111,31 +111,98 @@
               <button class="viewall">View All</button>
             </div>
           </article>
+
+            <!-- CARD SAMPLE -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">01</div>
+              <div class="meta">
+                <div class="name">Watson Joyce</div>
+                <div class="order">Order #002</div>
+              </div>
+              <div class="status">✓ Completed</div>
+            </div>
+
+            <div class="card-body">
+              <div class="row info">
+                <div>Wednesday, 28, 2024</div>
+                <div>4 : 48 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+
+            <!-- CARD SAMPLE -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">01</div>
+              <div class="meta">
+                <div class="name">Watson Joyce</div>
+                <div class="order">Order #002</div>
+              </div>
+              <div class="status">✓ Completed</div>
+            </div>
+
+            <div class="card-body">
+              <div class="row info">
+                <div>Wednesday, 28, 2024</div>
+                <div>4 : 48 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
         </section>
       </div>
     </main>
   </div>
 
   <script>
-    // NAV active toggle (klik maka aktif) — membuat icon+label jadi biru
+    /* NAV ACTIVE */
     (function () {
       const navItems = document.querySelectorAll('.nav-item');
       navItems.forEach(item => {
         item.addEventListener('click', () => {
-          // remove active from all
           navItems.forEach(i => i.classList.remove('active'));
-          // set active to clicked
           item.classList.add('active');
 
-          // update ARIA and main title (opsional)
           navItems.forEach(i => i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false'));
           const label = item.querySelector('.label')?.textContent || '';
-          document.querySelector('.title') && (document.querySelector('.title').textContent = label);
+          document.querySelector('.title').textContent = label;
         });
       });
     })();
 
-    // simple filter/search (sama seperti sebelumnya)
+    /* FILTER & SEARCH */
     (function () {
       const tabs = document.querySelectorAll('.tab');
       const cards = document.querySelectorAll('.card');
@@ -153,20 +220,78 @@
       });
 
       function filterCards(filter, q) {
-        q = (q || '').toLowerCase().trim();
+        q = q.toLowerCase().trim();
         cards.forEach(card => {
-          const status = card.dataset.status || 'all';
-          const name = card.querySelector('.name')?.textContent.toLowerCase() || '';
-          const order = card.querySelector('.order')?.textContent.toLowerCase() || '';
+          const status = card.dataset.status;
+          const name = card.querySelector('.name').textContent.toLowerCase();
+          const order = card.querySelector('.order').textContent.toLowerCase();
           const matchesFilter = (filter === 'all') || (status === filter);
           const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
           card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
         });
       }
 
-      // initial
       filterCards('all', '');
     })();
+
+
+    /* SEARCH HISTORY */
+    const searchInput = document.getElementById("search");
+    const historyBox = document.getElementById("search-history");
+
+    function loadHistory() {
+      return JSON.parse(localStorage.getItem("searchHistory") || "[]");
+    }
+
+    function saveHistory(keyword) {
+      let history = loadHistory();
+
+      history = history.filter(h => h !== keyword);
+      history.unshift(keyword);
+
+      if (history.length > 5) history.pop();
+      localStorage.setItem("searchHistory", JSON.stringify(history));
+    }
+
+    function showHistory() {
+      const history = loadHistory();
+
+      if (history.length === 0) {
+        historyBox.style.display = "none";
+        return;
+      }
+
+      historyBox.innerHTML = history
+        .map(item => `<div class="search-history-item">${item}</div>`)
+        .join("");
+
+      historyBox.style.display = "block";
+
+      document.querySelectorAll(".search-history-item").forEach(item => {
+        item.addEventListener("click", () => {
+          searchInput.value = item.textContent;
+          historyBox.style.display = "none";
+          searchInput.dispatchEvent(new Event("input"));
+        });
+      });
+    }
+
+    searchInput.addEventListener("focus", showHistory);
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".search-container")) {
+        historyBox.style.display = "none";
+      }
+    });
+
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const keyword = searchInput.value.trim();
+        if (keyword) saveHistory(keyword);
+        historyBox.style.display = "none";
+      }
+    });
   </script>
+
 </body>
 </html>
