@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS `payment_order` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `id_user` INT,
-  `id_cart` INT,
-  `total_amount` DECIMAL(12,2),
-  `received` DECIMAL(12,2),
-  `return_amount` DECIMAL(12,2),
-  `payment_method` ENUM('cash','e-wallet','bank'),
-  `status` ENUM('pending','confirmed'),
-  `created_at` DATETIME,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_payment_order_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_payment_order_cart` FOREIGN KEY (`id_cart`) REFERENCES `cart_order`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+CREATE TABLE payment_order (
+    id_payment_order INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_cart_order INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    received DECIMAL(10,2) NOT NULL,
+    return_amount DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('cash','e-wallet','bank') NOT NULL,
+    status ENUM('pending','confirmed') NOT NULL DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_user) REFERENCES users(id_user),
+    FOREIGN KEY (id_cart_order) REFERENCES cart_order(id_cart_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
