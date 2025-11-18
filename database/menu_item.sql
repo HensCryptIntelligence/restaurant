@@ -1,9 +1,8 @@
-CREATE TABLE IF NOT EXISTS `menu_items` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name_item` VARCHAR(255),
-  `category_item` VARCHAR(255),
-  `price` DECIMAL(12,2),
-  `stock` INT,
-  `created_at` DATETIME,
-  PRIMARY KEY (`id`)
+CREATE TABLE menu_items (
+    id_menu_item INT AUTO_INCREMENT PRIMARY KEY,
+    name_item VARCHAR(150) NOT NULL,
+    category_item VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
