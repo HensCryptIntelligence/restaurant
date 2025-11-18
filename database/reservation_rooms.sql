@@ -1,7 +1,6 @@
-CREATE TABLE IF NOT EXISTS `reservation_rooms` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `seats` INT,
-  `price_place` DECIMAL(12,2),
-  `created_at` DATETIME,
-  PRIMARY KEY (`id`)
+CREATE TABLE reservation_rooms (
+    id_reservation_room INT AUTO_INCREMENT PRIMARY KEY,
+    seats INT NOT NULL,
+    price_place DECIMAL(10,2) NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
