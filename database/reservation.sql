@@ -1,16 +1,16 @@
-CREATE TABLE IF NOT EXISTS `reservation` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `id_user` INT,
-  `id_room` INT,
-  `seats` INT,
-  `reservation_start` DATETIME,
-  `reservation_time` INT,
-  `reservation_date` DATETIME,
-  `phone_number` VARCHAR(255),
-  `email_address` VARCHAR(255),
-  `status` ENUM('pending','confirmed','cancelled'),
-  `created_at` DATETIME,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_reservation_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_reservation_room` FOREIGN KEY (`id_room`) REFERENCES `reservation_rooms`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+CREATE TABLE reservation (
+    id_reservation INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_reservation_room INT NOT NULL,
+    seats INT NOT NULL,
+    reservation_start DATETIME NOT NULL,
+    reservation_time INT NOT NULL,
+    reservation_date DATETIME NOT NULL,
+    phone_number VARCHAR(50) NOT NULL,
+    email_address VARCHAR(150) NOT NULL,
+    status ENUM('pending','confirmed','cancelled') NOT NULL DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_user) REFERENCES users(id_user),
+    FOREIGN KEY (id_reservation_room) REFERENCES reservation_rooms(id_reservation_room)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
