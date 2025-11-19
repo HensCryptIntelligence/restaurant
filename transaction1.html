@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bitehive — Transaction UI</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="transaction1.css">
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Sidebar navigation">
+      <div class="sidebar-top">
+        <div class="brand">Bitehive</div>
+
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+          <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
+            <span class="icon" style="-webkit-mask-image: url('icon/layout-dashboard.png'); mask-image: url('icon/layout-dashboard.png');"></span>
+            <span class="label">Dashboard</span>
+          </button>
+
+          <button class="nav-item" id="nav-order" aria-label="Order" data-target="order">
+            <span class="icon" style="-webkit-mask-image: url('icon/chart-pie.png'); mask-image: url('icon/chart-pie.png');"></span>
+            <span class="label">Order</span>
+          </button>
+
+          <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
+            <span class="icon" style="-webkit-mask-image: url('icon/calendar-arrow-up.png'); mask-image: url('icon/calendar-arrow-up.png');"></span>
+            <span class="label">Reservation</span>
+          </button>
+
+          <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
+            <span class="icon" style="-webkit-mask-image: url('icon/arrow-left-right.png'); mask-image: url('icon/arrow-left-right.png');"></span>
+            <span class="label">Transaction</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button class="logout" aria-label="Logout"
+        style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="main-inner">
+        <header class="topbar">
+          <div class="title-wrap">
+            <div class="chev">›</div>
+            <h1 class="title">Transaction</h1>
+          </div>
+
+          <div class="user">
+            <div class="user-text">CUSTOMER</div>
+            <img class="avatar" src="https://i.pravatar.cc/40" alt="user avatar">
+          </div>
+        </header>
+
+        <section class="controls">
+          <div class="tabs" role="tablist" aria-label="Filter transactions">
+            <button class="tab active" data-filter="all">All</button>
+            <button class="tab" data-filter="completed">Completed</button>
+            <button class="tab" data-filter="cancelled">Cancelled</button>
+          </div>
+
+          <div class="search-wrapper">
+            <div class="search-container">
+              <input id="search" placeholder="Search a name, order or etc" aria-label="Search"/>
+              <div id="search-history" class="search-history"></div>
+            </div>
+            <button class="search-btn" aria-label="search"><i class="fas fa-search"></i></button>
+          </div>
+        </section>
+
+        <section id="cards" class="cards-grid">
+
+          <!-- CARD 1 - COMPLETED -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">01</div>
+              <div class="meta">
+                <div class="name">Watson Joyce</div>
+                <div class="order">Order #002</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Wednesday, 28-08-2025</div>
+                <div>04 : 34 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- CARD 2 - CANCELLED -->
+          <article class="card" data-status="cancelled">
+            <div class="card-header">
+              <div class="badge">02</div>
+              <div class="meta">
+                <div class="name">Aisyah Rahma</div>
+                <div class="order">Order #010</div>
+              </div>
+              <div class="status cancelled">✕ Cancelled</div>
+            </div>
+
+            <div class="card-body">
+              <div class="row info">
+                <div>Tuesday, 27-08-2025</div>
+                <div>02 : 20 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Smoked Beef Sandwich</div><div class="right">02</div></div>
+                <div class="item"><div class="left"># 02 Green Salad</div><div class="right">01</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 1.200.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- more cards ... (copy pattern) -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">03</div>
+              <div class="meta">
+                <div class="name">Budi Santoso</div>
+                <div class="order">Order #011</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Monday, 26-08-2025</div>
+                <div>10 : 10 AM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Chicken Pasta</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Orange Juice</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 350.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal overlay for "View All" (initially hidden) -->
+  <div id="modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal">
+      <header class="modal-header">
+        <div class="modal-breadcrumbs">
+          <span class="crumb">Transaction</span>
+          <span class="crumb sep">›</span>
+          <span class="crumb current">Detail of Order</span>
+        </div>
+
+        <button id="modal-close" class="modal-close" aria-label="Close detail">&times;</button>
+      </header>
+
+      <div class="modal-content">
+        <div class="detail-top">
+          <div class="detail-left">
+            <div class="badge large" id="modal-badge">02</div>
+            <div class="meta">
+              <div class="name" id="modal-name">Watson Joyce</div>
+              <div class="order" id="modal-order">Order #002</div>
+            </div>
+          </div>
+
+          <div class="detail-right">
+            <div class="date" id="modal-date">Wednesday, 28-08-2025</div>
+            <div id="modal-status-btn" class="status-btn completed">✓ Completed</div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="detail-table-wrap">
+          <table class="detail-table" aria-label="Detail items">
+            <thead>
+              <tr>
+                <th>ID Items</th>
+                <th>Name of product</th>
+                <th>Quantity</th>
+                <th>Prices</th>
+                <th>Sub Total</th>
+              </tr>
+            </thead>
+            <tbody id="modal-items">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-totals">
+          <div class="totals-left">
+            <div class="totals-badge">💵</div>
+          </div>
+          <div class="totals-right">
+            <div class="totals-row"><span>Total Prices</span><strong id="modal-total">IDR 3.300.000,00</strong></div>
+            <div class="totals-row"><span>Disc. 0%</span><strong>IDR 0</strong></div>
+            <div class="totals-row"><span>Tax 0%</span><strong>IDR 0</strong></div>
+            <div class="totals-row"><span>Total</span><strong id="modal-grand">IDR 3.300.000,00</strong></div>
+            <div class="totals-row"><span>Received</span><strong>IDR 3.500.000,00</strong></div>
+            <div class="totals-row"><span>Return</span><strong>IDR 200.000,00</strong></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS (in the same HTML file) -->
+  <script>
+    /* NAV ACTIVE */
+    (function () {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          navItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          navItems.forEach(i => i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false'));
+          const label = item.querySelector('.label')?.textContent || '';
+          document.querySelector('.title').textContent = label;
+        });
+      });
+    })();
+
+    /* FILTER & SEARCH */
+    (function () {
+      const tabs = document.querySelectorAll('.tab');
+      const cards = document.querySelectorAll('.card');
+      const search = document.getElementById('search');
+
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        filterCards(t.dataset.filter, search.value);
+      }));
+
+      search.addEventListener('input', (e) => {
+        const activeTab = document.querySelector('.tab.active').dataset.filter;
+        filterCards(activeTab, e.target.value);
+      });
+
+      function filterCards(filter, q) {
+        q = q.toLowerCase().trim();
+        cards.forEach(card => {
+          const status = card.dataset.status;
+          const name = card.querySelector('.name').textContent.toLowerCase();
+          const order = card.querySelector('.order').textContent.toLowerCase();
+          const matchesFilter = (filter === 'all') || (status === filter);
+          const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
+          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+        });
+      }
+
+      filterCards('all', '');
+    })();
+
+    /* VIEW ALL MODAL LOGIC */
+    (function () {
+      const viewBtns = document.querySelectorAll('.viewall');
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalClose = document.getElementById('modal-close');
+
+      const modalBadge = document.getElementById('modal-badge');
+      const modalName = document.getElementById('modal-name');
+      const modalOrder = document.getElementById('modal-order');
+      const modalDate = document.getElementById('modal-date');
+      const modalItems = document.getElementById('modal-items');
+      const modalTotal = document.getElementById('modal-total');
+      const modalGrand = document.getElementById('modal-grand');
+      const modalStatusBtn = document.getElementById('modal-status-btn');
+
+      // helper to format currency simple (kept simple for demo)
+      function formatIDR(n) {
+        return 'IDR ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      // open modal when user clicks View All
+      viewBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.target.closest('.card');
+          if (!card) return;
+
+          // get data from card
+          const badge = card.querySelector('.badge')?.textContent.trim() || '';
+          const name = card.querySelector('.name')?.textContent.trim() || '';
+          const order = card.querySelector('.order')?.textContent.trim() || '';
+          const date = card.querySelector('.row.info > div')?.textContent.trim() || '';
+          const status = card.dataset.status || 'completed';
+
+          // sample: build items from the card items list
+          const itemNodes = Array.from(card.querySelectorAll('.item'));
+          const items = itemNodes.map((it, idx) => {
+            const id = '#00' + (idx+1);
+            const product = it.querySelector('.left')?.textContent.trim() || 'Product';
+            const qty = parseInt(it.querySelector('.right')?.textContent.trim() || '1', 10);
+            const price = 330000; // demo fixed price — replace with real data when available
+            return {
+              id, product, qty, price, subtotal: price * qty
+            };
+          });
+
+          // compute totals
+          const total = items.reduce((s, it) => s + it.subtotal, 0);
+
+          // populate modal
+          modalBadge.textContent = badge;
+          modalName.textContent = name;
+          modalOrder.textContent = order;
+          modalDate.textContent = date;
+
+          // set status button text & class
+          modalStatusBtn.classList.remove('completed', 'cancelled');
+          modalStatusBtn.classList.add(status === 'cancelled' ? 'cancelled' : 'completed');
+          modalStatusBtn.textContent = status === 'cancelled' ? '✕ Cancelled' : '✓ Completed';
+
+          // populate items table
+          modalItems.innerHTML = items.map(it => `
+            <tr>
+              <td>${it.id}</td>
+              <td class="td-product">${it.product}</td>
+              <td>${it.qty}</td>
+              <td>${formatIDR(it.price)}</td>
+              <td>${formatIDR(it.subtotal)}</td>
+            </tr>
+          `).join('');
+
+          // totals
+          modalTotal.textContent = formatIDR(total);
+          modalGrand.textContent = formatIDR(total); // no tax/discount demo
+
+          // show modal
+          modalOverlay.setAttribute('aria-hidden', 'false');
+          modalOverlay.classList.add('open');
+
+          // trap focus (simple)
+          const focusable = modalOverlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          if (focusable.length) focusable[0].focus();
+        })
+      });
+
+      // close modal
+      function closeModal() {
+        modalOverlay.classList.remove('open');
+        modalOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      modalClose.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+      });
+    })();
+  </script>
+
+</body>
+</html>
