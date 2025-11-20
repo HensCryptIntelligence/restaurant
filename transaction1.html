@@ -69,6 +69,7 @@
             <button class="tab active" data-filter="all">All</button>
             <button class="tab" data-filter="completed">Completed</button>
             <button class="tab" data-filter="cancelled">Cancelled</button>
+            <button class="tab" data-filter="reservation">Reservation</button>
           </div>
 
           <div class="search-wrapper">
@@ -82,7 +83,7 @@
 
         <section id="cards" class="cards-grid">
 
-          <!-- CARD 1 - COMPLETED -->
+          <!-- TRANSACTION CARD - COMPLETED -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">01</div>
@@ -115,7 +116,7 @@
             </div>
           </article>
 
-          <!-- CARD 2 - CANCELLED -->
+          <!-- TRANSACTION CARD - CANCELLED -->
           <article class="card" data-status="cancelled">
             <div class="card-header">
               <div class="badge">02</div>
@@ -148,10 +149,43 @@
             </div>
           </article>
 
-          <!-- more cards ... (copy pattern) -->
-          <article class="card" data-status="completed">
+          <!-- RESERVATION CARD (baru) -->
+          <article class="card reservation-card" data-status="reservation">
             <div class="card-header">
               <div class="badge">03</div>
+              <div class="meta">
+                <div class="name">Table #01</div>
+                <div class="order">Reservation ID #12354564</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+
+            <div class="reservation-body">
+    <div class="reservation-image">
+        <img src="foto/download.jpg">
+    </div>
+
+              <div class="reservation-content">
+                <h3 class="table-name">Table #01</h3>
+                <p class="reservation-datetime">28-03-2024 • 03:00 PM</p>
+
+                <div class="reservation-info">
+                  <div class="info-row"><span>Seats</span><strong>05 persons</strong></div>
+                  <div class="info-row"><span>Deposit Fee</span><strong>IDR 150.000</strong></div>
+                  <div class="info-row"><span>Customer</span><strong>Watson Joyce</strong></div>
+                </div>
+
+                <div class="reservation-actions">
+                  <button class="view-reservation">View All</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- MORE TRANSACTIONS / RESERVATIONS COPY PATTERN ... -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">04</div>
               <div class="meta">
                 <div class="name">Budi Santoso</div>
                 <div class="order">Order #011</div>
@@ -185,9 +219,9 @@
     </main>
   </div>
 
-  <!-- Modal overlay for "View All" (initially hidden) -->
+  <!-- Modal overlay for "View All" (order details) -->
   <div id="modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal">
+    <div class="modal" role="document">
       <header class="modal-header">
         <div class="modal-breadcrumbs">
           <span class="crumb">Transaction</span>
@@ -251,7 +285,45 @@
     </div>
   </div>
 
-  <!-- JS (in the same HTML file) -->
+  <!-- Modal overlay for Reservation Detail (image left) -->
+  <div id="res-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal modal-reservation" role="document">
+      <header class="modal-header">
+        <div class="modal-breadcrumbs">
+          <span class="crumb">Transaction</span>
+          <span class="crumb sep">›</span>
+          <span class="crumb current">Detail of Reservation</span>
+        </div>
+
+        <button id="res-modal-close" class="modal-close" aria-label="Close reservation detail">&times;</button>
+      </header>
+
+      <div class="modal-content reservation-detail-content">
+        <div class="reservation-detail-left">
+          <img id="res-modal-image" src="foto/download.jpg" alt="Table photo">
+        </div>
+
+        <div class="reservation-detail-right">
+          <h2 id="res-modal-table">Table #01</h2>
+          <div class="res-meta">
+            <div><strong>Reservation ID:</strong> <span id="res-modal-id">#12354564</span></div>
+            <div><strong>Customer:</strong> <span id="res-modal-customer">Watson Joyce</span></div>
+            <div><strong>Seats:</strong> <span id="res-modal-seats">05 persons</span></div>
+            <div><strong>Reservation Date:</strong> <span id="res-modal-date">28.03.2024</span></div>
+            <div><strong>Time:</strong> <span id="res-modal-time">03 : 00 PM</span></div>
+            <div><strong>Deposit:</strong> <span id="res-modal-deposit">IDR 150.000</span></div>
+          </div>
+
+          <div style="margin-top:18px;">
+            <button id="btn-cancel-reservation" class="btn-ghost">Cancel Reservation</button>
+            <button id="btn-change-table" class="btn-primary">Change Table</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS (embedded in same HTML file) -->
   <script>
     /* NAV ACTIVE */
     (function () {
@@ -285,12 +357,13 @@
       });
 
       function filterCards(filter, q) {
-        q = q.toLowerCase().trim();
+        q = (q || '').toLowerCase().trim();
         cards.forEach(card => {
           const status = card.dataset.status;
-          const name = card.querySelector('.name').textContent.toLowerCase();
-          const order = card.querySelector('.order').textContent.toLowerCase();
-          const matchesFilter = (filter === 'all') || (status === filter);
+          const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
+          const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
+          const isReservation = status === 'reservation';
+          const matchesFilter = (filter === 'all') || (filter === 'reservation' && isReservation) || (filter === status);
           const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
           card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
         });
@@ -299,7 +372,7 @@
       filterCards('all', '');
     })();
 
-    /* VIEW ALL MODAL LOGIC */
+    /* VIEW ALL (order) MODAL LOGIC */
     (function () {
       const viewBtns = document.querySelectorAll('.viewall');
       const modalOverlay = document.getElementById('modal-overlay');
@@ -314,51 +387,41 @@
       const modalGrand = document.getElementById('modal-grand');
       const modalStatusBtn = document.getElementById('modal-status-btn');
 
-      // helper to format currency simple (kept simple for demo)
       function formatIDR(n) {
         return 'IDR ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       }
 
-      // open modal when user clicks View All
       viewBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           const card = e.target.closest('.card');
           if (!card) return;
 
-          // get data from card
           const badge = card.querySelector('.badge')?.textContent.trim() || '';
           const name = card.querySelector('.name')?.textContent.trim() || '';
           const order = card.querySelector('.order')?.textContent.trim() || '';
           const date = card.querySelector('.row.info > div')?.textContent.trim() || '';
           const status = card.dataset.status || 'completed';
 
-          // sample: build items from the card items list
           const itemNodes = Array.from(card.querySelectorAll('.item'));
           const items = itemNodes.map((it, idx) => {
             const id = '#00' + (idx+1);
             const product = it.querySelector('.left')?.textContent.trim() || 'Product';
             const qty = parseInt(it.querySelector('.right')?.textContent.trim() || '1', 10);
-            const price = 330000; // demo fixed price — replace with real data when available
-            return {
-              id, product, qty, price, subtotal: price * qty
-            };
+            const price = 330000; // demo fixed price
+            return { id, product, qty, price, subtotal: price * qty };
           });
 
-          // compute totals
           const total = items.reduce((s, it) => s + it.subtotal, 0);
 
-          // populate modal
           modalBadge.textContent = badge;
           modalName.textContent = name;
           modalOrder.textContent = order;
           modalDate.textContent = date;
 
-          // set status button text & class
           modalStatusBtn.classList.remove('completed', 'cancelled');
           modalStatusBtn.classList.add(status === 'cancelled' ? 'cancelled' : 'completed');
           modalStatusBtn.textContent = status === 'cancelled' ? '✕ Cancelled' : '✓ Completed';
 
-          // populate items table
           modalItems.innerHTML = items.map(it => `
             <tr>
               <td>${it.id}</td>
@@ -369,34 +432,84 @@
             </tr>
           `).join('');
 
-          // totals
           modalTotal.textContent = formatIDR(total);
-          modalGrand.textContent = formatIDR(total); // no tax/discount demo
+          modalGrand.textContent = formatIDR(total);
 
-          // show modal
           modalOverlay.setAttribute('aria-hidden', 'false');
           modalOverlay.classList.add('open');
-
-          // trap focus (simple)
-          const focusable = modalOverlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-          if (focusable.length) focusable[0].focus();
-        })
+        });
       });
 
-      // close modal
       function closeModal() {
         modalOverlay.classList.remove('open');
         modalOverlay.setAttribute('aria-hidden', 'true');
       }
 
       modalClose.addEventListener('click', closeModal);
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
+      modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal(); });
+    })();
+
+    /* RESERVATION Modal logic */
+    (function () {
+      const resBtns = document.querySelectorAll('.view-reservation');
+      const resOverlay = document.getElementById('res-modal-overlay');
+      const resClose = document.getElementById('res-modal-close');
+
+      const resImage = document.getElementById('res-modal-image');
+      const resTable = document.getElementById('res-modal-table');
+      const resId = document.getElementById('res-modal-id');
+      const resCustomer = document.getElementById('res-modal-customer');
+      const resSeats = document.getElementById('res-modal-seats');
+      const resDate = document.getElementById('res-modal-date');
+      const resTime = document.getElementById('res-modal-time');
+      const resDeposit = document.getElementById('res-modal-deposit');
+
+      resBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.target.closest('.card.reservation-card');
+          if (!card) return;
+
+          // read data from card (adapt to your real data source)
+          const badge = card.querySelector('.badge')?.textContent.trim() || '';
+          const tableName = card.querySelector('.meta .name')?.textContent.trim() || 'Table';
+          const reservationId = card.querySelector('.meta .order')?.textContent.trim() || '#id';
+          const datetime = card.querySelector('.reservation-datetime')?.textContent.trim() || '';
+          const seats = card.querySelector('.info-row strong')?.textContent.trim() || 'n/a';
+          const customer = card.querySelector('.reservation-info .info-row:nth-child(3) strong')?.textContent.trim() || '';
+          const deposit = card.querySelector('.reservation-info .info-row:nth-child(2) strong')?.textContent.trim() || '';
+          const img = card.querySelector('.reservation-image img')?.getAttribute('src') || 'foto/download.jpg';
+
+          // populate modal
+          resImage.src = img;
+          resTable.textContent = tableName;
+          resId.textContent = reservationId;
+          resCustomer.textContent = customer;
+          resSeats.textContent = seats;
+          // split datetime if contains "•"
+          if (datetime.indexOf('•') > -1) {
+            const parts = datetime.split('•').map(s => s.trim());
+            resDate.textContent = parts[0];
+            resTime.textContent = parts[1];
+          } else {
+            resDate.textContent = datetime;
+            resTime.textContent = '';
+          }
+          resDeposit.textContent = deposit;
+
+          resOverlay.setAttribute('aria-hidden', 'false');
+          resOverlay.classList.add('open');
+        });
       });
 
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
-      });
+      function closeResModal() {
+        resOverlay.classList.remove('open');
+        resOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      resClose.addEventListener('click', closeResModal);
+      resOverlay.addEventListener('click', (e) => { if (e.target === resOverlay) closeResModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && resOverlay.classList.contains('open')) closeResModal(); });
     })();
   </script>
 
