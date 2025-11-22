@@ -18,181 +18,8 @@ try {
          <strong>SOLUSI:</strong><br>
          1. Pastikan XAMPP MySQL sudah running<br>
          2. Buka phpMyAdmin: <a href='http://localhost/phpmyadmin'>http://localhost/phpmyadmin</a><br>
-         3. Database akan otomatis dibuat saat pertama kali dijalankan");
-}
-
-// ==========================================
-// AUTO CREATE DATABASE & TABLES
-// ==========================================
-try {
-    // Create database if not exists
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS restaurant");
-    $pdo->exec("USE restaurant");
-    
-    // Create users table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
-        id_user INT AUTO_INCREMENT PRIMARY KEY,
-        fullname VARCHAR(255) NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        role ENUM('admin', 'customer') DEFAULT 'customer',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    // Create reservation_rooms table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS reservation_rooms (
-        id_reservation_room VARCHAR(10) PRIMARY KEY,
-        seats INT NOT NULL,
-        price_place DECIMAL(10,2) DEFAULT 50000,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    // Create reservation table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS reservation (
-        id_reservation INT AUTO_INCREMENT PRIMARY KEY,
-        id_user INT NOT NULL,
-        id_reservation_room VARCHAR(10) NOT NULL,
-        seats INT NOT NULL,
-        reservation_start DATETIME NOT NULL,
-        reservation_time INT DEFAULT 120,
-        reservation_date DATE NOT NULL,
-        phone_number VARCHAR(20),
-        email_address VARCHAR(255),
-        status ENUM('pending', 'confirmed', 'seated', 'cancelled') DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
-        FOREIGN KEY (id_reservation_room) REFERENCES reservation_rooms(id_reservation_room) ON DELETE CASCADE
-    )");
-    
-    // Check if tables are empty, then insert dummy data
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
-    $userCount = $stmt->fetch()['count'];
-    
-    if ($userCount == 0) {
-        // Insert dummy users
-        $pdo->exec("INSERT INTO users (fullname, password_hash, role) VALUES 
-            ('John Doe', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('Jane Smith', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('Robert Johnson', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('Maria Garcia', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('David Lee', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('Sarah Wilson', '" . password_hash('password', PASSWORD_BCRYPT) . "', 'customer'),
-            ('Admin User', '" . password_hash('admin123', PASSWORD_BCRYPT) . "', 'admin')
-        ");
-    }
-    
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM reservation_rooms");
-    $roomCount = $stmt->fetch()['count'];
-    
-    if ($roomCount == 0) {
-        // Insert all tables from 3 floors
-        $floor_data = [
-            '1' => ['Bar', 'A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2'],
-            '2' => ['D1', 'D2', 'D3', 'E1', 'E2', 'E3', 'F1', 'F2'],
-            '3' => ['G1', 'G2', 'G3', 'H1', 'H2', 'H3', 'I1', 'I2']
-        ];
-        
-        foreach ($floor_data as $floor => $tables) {
-            foreach ($tables as $table) {
-                $seats = ($table === 'Bar') ? 1 : rand(2, 6);
-                $pdo->exec("INSERT INTO reservation_rooms (id_reservation_room, seats, price_place) 
-                           VALUES ('$table', $seats, 50000)");
-            }
-        }
-        
-        echo "<!-- DEBUG: Successfully created " . count($floor_data[1]) + count($floor_data[2]) + count($floor_data[3]) . " tables -->";
-    }
-    
-    // PASTIKAN SEMUA ROOMS ADA SEBELUM INSERT RESERVATIONS
-    // Verifikasi rooms yang dibutuhkan
-    $requiredRooms = ['Bar', 'A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2', 
-                      'D1', 'D2', 'D3', 'E1', 'E2', 'E3', 'F1', 'F2',
-                      'G1', 'G2', 'G3', 'H1', 'H2', 'H3', 'I1', 'I2'];
-    
-    foreach ($requiredRooms as $room) {
-        $checkRoom = $pdo->prepare("SELECT COUNT(*) FROM reservation_rooms WHERE id_reservation_room = ?");
-        $checkRoom->execute([$room]);
-        if ($checkRoom->fetchColumn() == 0) {
-            $seats = ($room === 'Bar') ? 1 : rand(2, 6);
-            $pdo->exec("INSERT INTO reservation_rooms (id_reservation_room, seats, price_place) 
-                       VALUES ('$room', $seats, 50000)");
-            echo "<!-- DEBUG: Added missing room: $room -->";
-        }
-    }
-    
-    // Insert dummy reservations for TODAY - FORCE INSERT SETIAP KALI REFRESH (UNTUK TESTING)
-    // Hapus dummy lama dulu
-    $pdo->exec("DELETE FROM reservation WHERE email_address LIKE '%dummy%'");
-    
-    $today = date('Y-m-d');
-    
-    // FORCE INSERT DUMMY DATA DENGAN NAMA REALISTIS
-    $dummyReservations = [
-        // Floor 1
-        ['user_id' => 1, 'table' => 'A1', 'hour' => 10, 'guests' => 2, 'status' => 'confirmed', 'name' => 'John Doe'],
-        ['user_id' => 2, 'table' => 'A1', 'hour' => 14, 'guests' => 4, 'status' => 'pending', 'name' => 'Jane Smith'],
-        ['user_id' => 3, 'table' => 'A2', 'hour' => 11, 'guests' => 3, 'status' => 'seated', 'name' => 'Mike Johnson'],
-        ['user_id' => 4, 'table' => 'B1', 'hour' => 12, 'guests' => 3, 'status' => 'seated', 'name' => 'Tom Brown'],
-        ['user_id' => 5, 'table' => 'B2', 'hour' => 18, 'guests' => 2, 'status' => 'confirmed', 'name' => 'Sarah Lee'],
-        ['user_id' => 6, 'table' => 'B3', 'hour' => 19, 'guests' => 4, 'status' => 'pending', 'name' => 'David Kim'],
-        ['user_id' => 1, 'table' => 'C1', 'hour' => 19, 'guests' => 4, 'status' => 'pending', 'name' => 'Lisa Wang'],
-        ['user_id' => 2, 'table' => 'C2', 'hour' => 13, 'guests' => 2, 'status' => 'confirmed', 'name' => 'Chris Martin'],
-        ['user_id' => 3, 'table' => 'Bar', 'hour' => 20, 'guests' => 1, 'status' => 'seated', 'name' => 'Alex Turner'],
-        
-        // Floor 2
-        ['user_id' => 4, 'table' => 'D1', 'hour' => 11, 'guests' => 2, 'status' => 'confirmed', 'name' => 'Emma Davis'],
-        ['user_id' => 5, 'table' => 'D2', 'hour' => 15, 'guests' => 3, 'status' => 'pending', 'name' => 'James Wilson'],
-        ['user_id' => 6, 'table' => 'D3', 'hour' => 18, 'guests' => 4, 'status' => 'confirmed', 'name' => 'Olivia Moore'],
-        ['user_id' => 1, 'table' => 'E1', 'hour' => 17, 'guests' => 3, 'status' => 'pending', 'name' => 'William Taylor'],
-        ['user_id' => 2, 'table' => 'E2', 'hour' => 12, 'guests' => 2, 'status' => 'seated', 'name' => 'Sophia Anderson'],
-        ['user_id' => 3, 'table' => 'E3', 'hour' => 20, 'guests' => 5, 'status' => 'confirmed', 'name' => 'Michael Thomas'],
-        ['user_id' => 4, 'table' => 'F1', 'hour' => 14, 'guests' => 2, 'status' => 'pending', 'name' => 'Emily Jackson'],
-        ['user_id' => 5, 'table' => 'F2', 'hour' => 21, 'guests' => 3, 'status' => 'confirmed', 'name' => 'Daniel White'],
-        
-        // Floor 3
-        ['user_id' => 6, 'table' => 'G1', 'hour' => 13, 'guests' => 4, 'status' => 'confirmed', 'name' => 'Isabella Harris'],
-        ['user_id' => 1, 'table' => 'G2', 'hour' => 16, 'guests' => 2, 'status' => 'seated', 'name' => 'Matthew Clark'],
-        ['user_id' => 2, 'table' => 'G3', 'hour' => 19, 'guests' => 3, 'status' => 'pending', 'name' => 'Ava Lewis'],
-        ['user_id' => 3, 'table' => 'H1', 'hour' => 15, 'guests' => 2, 'status' => 'seated', 'name' => 'Joshua Robinson'],
-        ['user_id' => 4, 'table' => 'H2', 'hour' => 17, 'guests' => 4, 'status' => 'confirmed', 'name' => 'Mia Walker'],
-        ['user_id' => 5, 'table' => 'H3', 'hour' => 20, 'guests' => 3, 'status' => 'pending', 'name' => 'Andrew Hall'],
-        ['user_id' => 6, 'table' => 'I1', 'hour' => 12, 'guests' => 2, 'status' => 'confirmed', 'name' => 'Charlotte Allen'],
-        ['user_id' => 1, 'table' => 'I2', 'hour' => 18, 'guests' => 4, 'status' => 'seated', 'name' => 'Ryan Young'],
-    ];
-    
-    $stmt = $pdo->prepare("
-        INSERT INTO reservation (
-            id_user, id_reservation_room, seats, 
-            reservation_start, reservation_time, reservation_date,
-            phone_number, email_address, status
-        ) VALUES (
-            :id_user, :table, :guests,
-            :res_start, 120, :res_date,
-            :phone, :email, :status
-        )
-    ");
-    
-    foreach ($dummyReservations as $res) {
-        $reservationStart = $today . ' ' . str_pad($res['hour'], 2, '0', STR_PAD_LEFT) . ':00:00';
-        
-        // Update user name dulu
-        $updateUser = $pdo->prepare("UPDATE users SET fullname = :name WHERE id_user = :id");
-        $updateUser->execute(['name' => $res['name'], 'id' => $res['user_id']]);
-        
-        // Insert reservation
-        $stmt->execute([
-            'id_user' => $res['user_id'],
-            'table' => $res['table'],
-            'guests' => $res['guests'],
-            'res_start' => $reservationStart,
-            'res_date' => $today,
-            'phone' => '0812345678' . $res['user_id'],
-            'email' => strtolower(str_replace(' ', '.', $res['name'])) . '@dummy.com',
-            'status' => $res['status']
-        ]);
-    }
-    
-} catch (PDOException $e) {
-    die("Error creating tables: " . $e->getMessage());
+         3. Import file <strong>restaurant.sql</strong> terlebih dahulu<br>
+         4. Pastikan database bernama <strong>restaurant</strong> sudah ada");
 }
 
 // ==========================================
@@ -207,11 +34,16 @@ $floor_data = [
 ];
 
 // Get selected floor (default: 1)
-$selectedFloor = $_GET['floor'] ?? '1';
+$selectedFloor = $_GET['floor'] ?? ($_COOKIE['selected_floor'] ?? '1');
 $floor_tables = $floor_data[$selectedFloor] ?? $floor_data['1'];
 $hours = range(10, 22);
 
-// Handle AJAX requests
+// Set cookie for selected floor
+setcookie('selected_floor', $selectedFloor, time() + 3600, '/'); // 1 hour
+
+// ==========================================
+// HANDLE AJAX REQUESTS
+// ==========================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $response = ['success' => false, 'message' => ''];
@@ -235,6 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 
                 if ($guests <= 0) {
                     throw new Exception('Number of guests must be at least 1!');
+                }
+                
+                // VALIDASI: Cek kapasitas meja
+                $stmt = $pdo->prepare("SELECT seats FROM reservation_rooms WHERE id_reservation_room = :table");
+                $stmt->execute(['table' => $table]);
+                $roomData = $stmt->fetch();
+                
+                if (!$roomData) {
+                    throw new Exception('Table not found!');
+                }
+                
+                if ($guests > $roomData['seats']) {
+                    throw new Exception("This table only has {$roomData['seats']} seats! You requested {$guests} guests. Please choose a larger table.");
                 }
                 
                 // Cek apakah slot sudah terisi
@@ -310,6 +155,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     'date' => $date,
                     'status' => 'pending'
                 ];
+                break;    )
+                ");
+                
+                $stmt->execute([
+                    'id_user' => $userId,
+                    'id_room' => $table,
+                    'seats' => $guests,
+                    'res_start' => $reservationStart,
+                    'res_date' => $date,
+                    'phone' => $phone,
+                    'email' => $email
+                ]);
+                
+                $resId = $pdo->lastInsertId();
+                
+                $response['success'] = true;
+                $response['message'] = '✅ Reservation added successfully!';
+                $response['data'] = [
+                    'id' => $resId,
+                    'table' => $table,
+                    'hour' => $hour,
+                    'name' => $name,
+                    'phone' => $phone,
+                    'guests' => $guests,
+                    'date' => $date,
+                    'status' => 'pending'
+                ];
                 break;
                 
             case 'update':
@@ -330,6 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $updateFields = [];
                 $params = ['id' => $id];
                 
+                // Update user name
                 if (isset($_POST['name']) && !empty(trim($_POST['name']))) {
                     $stmt = $pdo->prepare("
                         UPDATE users u 
@@ -340,6 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $stmt->execute(['name' => trim($_POST['name']), 'id' => $id]);
                 }
                 
+                // Update reservation fields
                 if (isset($_POST['phone']) && !empty(trim($_POST['phone']))) {
                     $updateFields[] = "phone_number = :phone";
                     $params['phone'] = trim($_POST['phone']);
@@ -438,11 +312,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// Get reservasi dari database untuk tampilan
+// ==========================================
+// GET DATA UNTUK TAMPILAN
+// ==========================================
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
 $selectedFloor = $_GET['floor'] ?? '1';
 
 try {
+    // Get reservations
     $stmt = $pdo->prepare("
         SELECT r.*, u.fullname as name 
         FROM reservation r 
@@ -454,10 +331,15 @@ try {
     $stmt->execute(['date' => $selectedDate]);
     $reservations = $stmt->fetchAll();
     
+    // Get rooms
+    $stmt = $pdo->query("SELECT id_reservation_room, seats FROM reservation_rooms ORDER BY id_reservation_room");
+    $rooms = $stmt->fetchAll();
+    
 } catch (PDOException $e) {
-    die("Error fetching reservations: " . $e->getMessage());
+    die("Error fetching data: " . $e->getMessage());
 }
 
+// Helper function
 function getReservation($table, $hour, $data) {
     foreach ($data as $res) {
         if ($res['id_reservation_room'] == $table && 
@@ -476,14 +358,6 @@ function getReservation($table, $hour, $data) {
         }
     }
     return null;
-}
-
-// Get daftar rooms
-try {
-    $stmt = $pdo->query("SELECT id_reservation_room, seats FROM reservation_rooms ORDER BY id_reservation_room");
-    $rooms = $stmt->fetchAll();
-} catch (PDOException $e) {
-    $rooms = [];
 }
 ?>
 
@@ -954,21 +828,48 @@ try {
         <h2 class="modal-title">Add New Reservation</h2>
         <button class="modal-close" onclick="closeAddModal()">&times;</button>
       </div>
+      
+      <!-- INFO BOX -->
+      <div style="background: rgba(250, 193, 217, 0.1); border: 1px solid var(--pink-primary); border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+          <svg style="width: 20px; height: 20px; stroke: var(--pink-primary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <strong style="color: var(--pink-primary); font-size: 14px;">Reservation Info</strong>
+        </div>
+        <div id="bookingInfo" style="color: var(--gray-light); font-size: 13px; line-height: 1.6;">
+          Please fill in all required fields below
+        </div>
+      </div>
+      
       <form id="addForm">
         <div class="form-row">
           <div class="form-group">
+            <label class="form-label">Floor <span class="required">*</span></label>
+            <select class="form-select" id="addFloor" onchange="updateFloorTables()" required>
+              <option value="1">1st Floor</option>
+              <option value="2">2nd Floor</option>
+              <option value="3">3rd Floor</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Table <span class="required">*</span></label>
-            <select class="form-select" id="addTable" required>
+            <select class="form-select" id="addTable" onchange="updateTableInfo()" required>
               <?php foreach($rooms as $room): ?>
-                <option value="<?php echo $room['id_reservation_room']; ?>">
+                <option value="<?php echo $room['id_reservation_room']; ?>" data-seats="<?php echo $room['seats']; ?>">
                   Table <?php echo $room['id_reservation_room']; ?> (<?php echo $room['seats']; ?> seats)
                 </option>
               <?php endforeach; ?>
             </select>
           </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date <span class="required">*</span></label>
+            <input type="date" class="form-input" id="addDate" value="<?php echo $selectedDate; ?>" required>
+          </div>
           <div class="form-group">
             <label class="form-label">Hour <span class="required">*</span></label>
-            <select class="form-select" id="addHour" required>
+            <select class="form-select" id="addHour" onchange="updateBookingInfo()" required>
               <?php foreach($hours as $h): ?>
                 <option value="<?php echo $h; ?>"><?php echo str_pad($h, 2, '0', STR_PAD_LEFT); ?>:00</option>
               <?php endforeach; ?>
@@ -988,7 +889,8 @@ try {
           </div>
           <div class="form-group">
             <label class="form-label">Guests <span class="required">*</span></label>
-            <input type="number" class="form-input" id="addGuests" min="1" max="20" value="2" required>
+            <input type="number" class="form-input" id="addGuests" min="1" max="20" value="2" onchange="validateSeats()" required>
+            <small id="seatsWarning" style="color: var(--red-accent); font-size: 12px; display: none; margin-top: 4px;"></small>
           </div>
         </div>
         
@@ -998,18 +900,13 @@ try {
         </div>
         
         <div class="form-group">
-          <label class="form-label">Date <span class="required">*</span></label>
-          <input type="date" class="form-input" id="addDate" value="<?php echo $selectedDate; ?>" required>
-        </div>
-        
-        <div class="form-group">
           <label class="form-label">Notes (Optional)</label>
           <textarea class="form-textarea" id="addNotes" placeholder="Special requests or notes..."></textarea>
         </div>
         
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Reservation</button>
+          <button type="submit" class="btn btn-primary" id="submitReservation">Add Reservation</button>
         </div>
       </form>
     </div>
@@ -1085,6 +982,8 @@ try {
   <script>
     const HOURS = <?php echo json_encode($hours); ?>;
     const FLOOR_TABLES = <?php echo json_encode($floor_tables); ?>;
+    const ALL_ROOMS = <?php echo json_encode($rooms); ?>;
+    const FLOOR_DATA = <?php echo json_encode($floor_data); ?>;
     
     console.log('🎯 Bitehive Reservation System');
     console.log('Current Floor:', '<?php echo $selectedFloor; ?>');
@@ -1124,6 +1023,8 @@ try {
 
     function changeFloor(floor) {
       const currentDate = document.getElementById('dateFilter').value;
+      // Set cookie
+      document.cookie = `selected_floor=${floor}; path=/; max-age=3600`;
       window.location.href = '?date=' + currentDate + '&floor=' + floor;
     }
 
@@ -1143,18 +1044,105 @@ try {
 
     function openAddModal() {
       document.getElementById('addModal').classList.add('active');
+      // Set current floor as default
+      document.getElementById('addFloor').value = '<?php echo $selectedFloor; ?>';
+      updateFloorTables();
+      updateBookingInfo();
     }
 
     function closeAddModal() {
       document.getElementById('addModal').classList.remove('active');
       document.getElementById('addForm').reset();
+      document.getElementById('seatsWarning').style.display = 'none';
     }
 
     function openBookingModal(table, hour) {
       console.log('📝 Opening booking modal for:', table, 'at', hour);
       openAddModal();
+      
+      // Detect which floor this table belongs to
+      let tableFloor = '1';
+      for (let floor in FLOOR_DATA) {
+        if (FLOOR_DATA[floor].includes(table)) {
+          tableFloor = floor;
+          break;
+        }
+      }
+      
+      document.getElementById('addFloor').value = tableFloor;
+      updateFloorTables();
       document.getElementById('addTable').value = table;
       document.getElementById('addHour').value = hour;
+      updateBookingInfo();
+      updateTableInfo();
+    }
+    
+    // Update tables based on selected floor
+    function updateFloorTables() {
+      const floor = document.getElementById('addFloor').value;
+      const tableSelect = document.getElementById('addTable');
+      const tables = FLOOR_DATA[floor];
+      
+      tableSelect.innerHTML = '';
+      
+      ALL_ROOMS.forEach(room => {
+        if (tables.includes(room.id_reservation_room)) {
+          const option = document.createElement('option');
+          option.value = room.id_reservation_room;
+          option.setAttribute('data-seats', room.seats);
+          option.textContent = `Table ${room.id_reservation_room} (${room.seats} seats)`;
+          tableSelect.appendChild(option);
+        }
+      });
+      
+      updateBookingInfo();
+      validateSeats();
+    }
+    
+    // Update booking info box
+    function updateBookingInfo() {
+      const floor = document.getElementById('addFloor').value;
+      const table = document.getElementById('addTable').value;
+      const hour = document.getElementById('addHour').value;
+      const date = document.getElementById('addDate').value;
+      
+      const tableOption = document.getElementById('addTable').selectedOptions[0];
+      const seats = tableOption ? tableOption.getAttribute('data-seats') : 0;
+      
+      const floorNames = {'1': '1st Floor', '2': '2nd Floor', '3': '3rd Floor'};
+      
+      document.getElementById('bookingInfo').innerHTML = `
+        <strong style="color: var(--pink-primary);">📍 ${floorNames[floor]}</strong> - Table <strong>${table}</strong> (Capacity: ${seats} seats)<br>
+        📅 ${date} at <strong>${String(hour).padStart(2, '0')}:00</strong> (2 hours reservation)
+      `;
+    }
+    
+    // Update table info when table changes
+    function updateTableInfo() {
+      updateBookingInfo();
+      validateSeats();
+    }
+    
+    // Validate number of guests vs table capacity
+    function validateSeats() {
+      const tableOption = document.getElementById('addTable').selectedOptions[0];
+      const tableSeats = parseInt(tableOption.getAttribute('data-seats'));
+      const guests = parseInt(document.getElementById('addGuests').value) || 0;
+      const warning = document.getElementById('seatsWarning');
+      const submitBtn = document.getElementById('submitReservation');
+      
+      if (guests > tableSeats) {
+        warning.textContent = `⚠️ This table only has ${tableSeats} seats! Please select a larger table or reduce guests.`;
+        warning.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+      } else {
+        warning.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      }
     }
 
     function closeDetailModal() {
@@ -1317,7 +1305,7 @@ try {
           
           const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
           
-          document.getElementById('detailContent').innerHTML = `
+          document.getElementById('detailContent').innerHTML = `'
             <div class="detail-row">
               <span class="detail-label">Guest Name:</span>
               <span class="detail-value">${data.name}</span>
