@@ -155,33 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     'date' => $date,
                     'status' => 'pending'
                 ];
-                break;    )
-                ");
-                
-                $stmt->execute([
-                    'id_user' => $userId,
-                    'id_room' => $table,
-                    'seats' => $guests,
-                    'res_start' => $reservationStart,
-                    'res_date' => $date,
-                    'phone' => $phone,
-                    'email' => $email
-                ]);
-                
-                $resId = $pdo->lastInsertId();
-                
-                $response['success'] = true;
-                $response['message'] = '✅ Reservation added successfully!';
-                $response['data'] = [
-                    'id' => $resId,
-                    'table' => $table,
-                    'hour' => $hour,
-                    'name' => $name,
-                    'phone' => $phone,
-                    'guests' => $guests,
-                    'date' => $date,
-                    'status' => 'pending'
-                ];
                 break;
                 
             case 'update':
@@ -1305,7 +1278,7 @@ function getReservation($table, $hour, $data) {
           
           const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
           
-          document.getElementById('detailContent').innerHTML = `'
+          document.getElementById('detailContent').innerHTML = `
             <div class="detail-row">
               <span class="detail-label">Guest Name:</span>
               <span class="detail-value">${data.name}</span>
