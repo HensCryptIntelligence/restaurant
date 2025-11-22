@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bitehive Admin — Transaction UI</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="transaction_admin.css">
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Sidebar navigation">
+      <div class="sidebar-top">
+        <div class="brand">Bitehive</div>
+
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+          <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/layout-dashboard.png'); mask-image: url('icon/layout-dashboard.png');"></span>
+            </div>
+            <span class="label">Dashboard</span>
+          </button>
+
+          <button class="nav-item" id="nav-user" aria-label="User" data-target="user">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/user.png'); mask-image: url('icon/user.png');"></span>
+            </div>
+            <span class="label">User</span>
+          </button>
+
+          <button class="nav-item" id="nav-inventory" aria-label="Inventory" data-target="inventory">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/package.png'); mask-image: url('icon/package.png');"></span>
+            </div>
+            <span class="label">Inventory</span>
+          </button>
+
+          <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/calendar-arrow-up.png'); mask-image: url('icon/calendar-arrow-up.png');"></span>
+            </div>
+            <span class="label">Reservation</span>
+          </button>
+
+          <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/arrow-left-right.png'); mask-image: url('icon/arrow-left-right.png');"></span>
+            </div>
+            <span class="label">Transaction</span>
+          </button>
+
+          <button class="nav-item" id="nav-audit" aria-label="Audit Logs" data-target="audit">
+            <div class="nav-icon-wrapper">
+              <span class="icon" style="-webkit-mask-image: url('icon/file-text.png'); mask-image: url('icon/file-text.png');"></span>
+            </div>
+            <span class="label">Audit Logs</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button class="logout" aria-label="Logout"
+        style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="main-inner">
+        <header class="topbar">
+          <div class="title-wrap">
+            <div class="chev">›</div>
+            <h1 class="title">Transaction</h1>
+          </div>
+
+          <div class="user">
+            <div class="user-text">ADMIN</div>
+            <img class="avatar" src="https://i.pravatar.cc/40" alt="admin avatar">
+          </div>
+        </header>
+
+        <section class="controls">
+          <div class="tabs" role="tablist" aria-label="Filter transactions">
+            <button class="tab active" data-filter="all">All</button>
+            <button class="tab" data-filter="completed">Completed</button>
+            <button class="tab" data-filter="pending">Pending</button>
+            <button class="tab" data-filter="cancelled">Cancelled</button>
+          </div>
+
+          <div class="search-wrapper">
+            <div class="date-filter-wrapper">
+              <select id="date-filter" class="date-filter" aria-label="Date filter">
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="all">All Time</option>
+              </select>
+              <i class="fas fa-chevron-down dropdown-icon"></i>
+            </div>
+
+            <div class="search-container">
+              <input id="search" placeholder="Search a name, order or etc" aria-label="Search"/>
+              <button class="search-btn" aria-label="search"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+        </section>
+
+        <section id="cards" class="cards-grid">
+
+          <!-- TRANSACTION CARD - COMPLETED #1 -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">01</div>
+              <div class="meta">
+                <div class="name">Watson Joyce</div>
+                <div class="order">Order #002</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Wednesday, 28-08-2025</div>
+                <div>04 : 34 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
+                <div class="item hidden-item"><div class="left"># 04 Pancakes</div><div class="right">01</div></div>
+                <div class="item hidden-item"><div class="left"># 05 French Toast</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- TRANSACTION CARD - CANCELLED -->
+          <article class="card" data-status="cancelled">
+            <div class="card-header">
+              <div class="badge">02</div>
+              <div class="meta">
+                <div class="name">Aisyah Rahma</div>
+                <div class="order">Order #010</div>
+              </div>
+              <div class="status cancelled">✕ Cancelled</div>
+            </div>
+
+            <div class="card-body">
+              <div class="row info">
+                <div>Tuesday, 27-08-2025</div>
+                <div>02 : 20 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Smoked Beef Sandwich</div><div class="right">02</div></div>
+                <div class="item"><div class="left"># 02 Green Salad</div><div class="right">01</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 1.200.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- TRANSACTION CARD - COMPLETED #3 -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">03</div>
+              <div class="meta">
+                <div class="name">Budi Santoso</div>
+                <div class="order">Order #011</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Monday, 26-08-2025</div>
+                <div>10 : 10 AM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Chicken Pasta</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Orange Juice</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 350.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- TRANSACTION CARD - PENDING -->
+          <article class="card" data-status="pending">
+            <div class="card-header">
+              <div class="badge">04</div>
+              <div class="meta">
+                <div class="name">Siti Nurhaliza</div>
+                <div class="order">Order #012</div>
+              </div>
+              <div class="status pending">⏱ Pending</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Monday, 26-08-2025</div>
+                <div>11 : 45 AM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Caesar Salad</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Iced Coffee</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 280.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- TRANSACTION CARD - COMPLETED #5 -->
+          <article class="card" data-status="completed">
+            <div class="card-header">
+              <div class="badge">05</div>
+              <div class="meta">
+                <div class="name">Ahmad Rizki</div>
+                <div class="order">Order #013</div>
+              </div>
+              <div class="status completed">✓ Completed</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Sunday, 25-08-2025</div>
+                <div>02 : 15 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Beef Burger</div><div class="right">02</div></div>
+                <div class="item"><div class="left"># 02 French Fries</div><div class="right">02</div></div>
+                <div class="item"><div class="left"># 03 Coca Cola</div><div class="right">02</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 450.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- TRANSACTION CARD - CANCELLED #6 -->
+          <article class="card" data-status="cancelled">
+            <div class="card-header">
+              <div class="badge">06</div>
+              <div class="meta">
+                <div class="name">Linda Kartika</div>
+                <div class="order">Order #014</div>
+              </div>
+              <div class="status cancelled">✕ Cancelled</div>
+            </div>
+            <div class="card-body">
+              <div class="row info">
+                <div>Sunday, 25-08-2025</div>
+                <div>05 : 30 PM</div>
+              </div>
+
+              <hr />
+
+              <div class="items">
+                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
+                <div class="item"><div class="left"># 01 Pizza Margherita</div><div class="right">01</div></div>
+                <div class="item"><div class="left"># 02 Garlic Bread</div><div class="right">01</div></div>
+              </div>
+
+              <hr />
+
+              <div class="total"><div>Total Price</div><div>IDR 380.000,00</div></div>
+
+              <button class="viewall">View All</button>
+            </div>
+          </article>
+
+          <!-- RESERVATION CARD -->
+          <article class="card reservation-card" data-status="reservation">
+            <div class="reservation-image-container">
+              <img src="foto/download.jpg" alt="Table photo">
+              <div class="reservation-overlay-info">
+                <div class="badge">07</div>
+                <div class="overlay-meta">
+                  <div class="name">Table #01</div>
+                  <div class="order">Reservation ID #12354564</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="reservation-body-new">
+              <div class="status completed">✓ Completed</div>
+              
+              <div class="reservation-datetime">28-03-2024 • 03:00 PM</div>
+
+              <div class="reservation-info-grid">
+                <div class="info-item">
+                  <span class="info-label">Seats</span>
+                  <strong class="info-value">05 persons</strong>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Deposit Fee</span>
+                  <strong class="info-value">IDR 150.000</strong>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Customer</span>
+                  <strong class="info-value">Watson Joyce</strong>
+                </div>
+              </div>
+
+              <button class="viewall view-reservation">View All</button>
+            </div>
+          </article>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Detail of Reservation -->
+  <div id="reservation-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal modal-reservation-detail" role="document">
+      <header class="modal-header-simple">
+        <div class="breadcrumb-nav">
+          <span>Transaction</span>
+          <span class="sep">›</span>
+          <span>Detail of Reservation</span>
+        </div>
+        <button id="reservation-modal-close" class="modal-close" aria-label="Close">&times;</button>
+      </header>
+
+      <div class="reservation-hero">
+        <img src="foto/download.jpg" alt="Table" class="reservation-hero-img">
+        <div class="reservation-hero-overlay">
+          <h2 class="reservation-table-name">Table # 01</h2>
+        </div>
+        <div class="reservation-status-badge completed">✓ Completed</div>
+      </div>
+
+      <div class="reservation-modal-content">
+        <h3 class="section-title">Reservation Details</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Room 1</span>
+            <span class="detail-value">01</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Seats</span>
+            <span class="detail-value">05 persons</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation Date</span>
+            <span class="detail-value">28. 03. 2024</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation Time</span>
+            <span class="detail-value">03 : 00 PM</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation End</span>
+            <span class="detail-value">05 : 00 PM</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Deposit Fee</span>
+            <span class="detail-value">IDR 1000000.00</span>
+          </div>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 24px;">Customer Details</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Reservation ID</span>
+            <span class="detail-value">#12354564</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">Watson Joyce</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phone number</span>
+            <span class="detail-value">+1 (123) 123 4654</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">watsonjoyce112@gmail.com</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel">Cancel Reservation</button>
+          <button class="btn-approve">Approvement</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail of Order -->
+  <div id="order-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal modal-order-detail" role="document">
+      <header class="modal-header-simple">
+        <div class="breadcrumb-nav">
+          <span>Transaction</span>
+          <span class="sep">›</span>
+          <span>Detail of Order</span>
+        </div>
+        <button id="order-modal-close" class="modal-close" aria-label="Close">&times;</button>
+      </header>
+
+      <div class="order-header">
+        <div class="order-header-left">
+          <div class="badge-large pink">02</div>
+          <div>
+            <h3 class="order-customer-name">Watson Joyce</h3>
+            <p class="order-number">Order # 002</p>
+          </div>
+        </div>
+        <div class="order-header-right">
+          <span class="order-date">Wednesday, 28-08-2025</span>
+          <span class="order-time">04 : 34 PM</span>
+        </div>
+        <div class="order-status-badge completed">✓ Completed</div>
+      </div>
+
+      <div class="order-table-container">
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Orders</th>
+              <th>Name of product</th>
+              <th>Quantity</th>
+              <th>Prices</th>
+              <th>Sub Total</th>
+            </tr>
+          </thead>
+          <tbody id="order-table-body">
+            <tr>
+              <td>#001</td>
+              <td>Gudang Garam Signature</td>
+              <td>10</td>
+              <td>IDR 330000.00</td>
+              <td>IDR 330000.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="order-summary">
+        <div class="order-summary-icon">💵</div>
+        <div class="order-summary-grid">
+          <div class="summary-row">
+            <span>Total Prices</span>
+            <strong id="order-total-price">IDR 33000000.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Disc. 0%</span>
+            <strong>IDR 0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Tax 0%</span>
+            <strong>IDR 0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total</span>
+            <strong id="order-grand-total">IDR 33000000.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Received</span>
+            <strong id="order-received">IDR 35000000.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Return</span>
+            <strong id="order-return">IDR 2000000.00</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel">Cancel Ordered</button>
+        <button class="btn-approve">Approvement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    /* NAV ACTIVE */
+    (function () {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          navItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          navItems.forEach(i => i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false'));
+          const label = item.querySelector('.label')?.textContent || '';
+          document.querySelector('.title').textContent = label;
+        });
+      });
+    })();
+
+    /* LIMIT ITEMS TO 3, HIDE REST */
+    (function () {
+      const allCards = document.querySelectorAll('.card:not(.reservation-card)');
+      allCards.forEach(card => {
+        const items = card.querySelectorAll('.items .item');
+        items.forEach((item, idx) => {
+          if (idx >= 3) {
+            item.classList.add('hidden-item');
+          }
+        });
+      });
+    })();
+
+    /* FILTER & SEARCH */
+    (function () {
+      const tabs = document.querySelectorAll('.tab');
+      const cards = document.querySelectorAll('.card');
+      const search = document.getElementById('search');
+
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        filterCards(t.dataset.filter, search.value);
+      }));
+
+      search.addEventListener('input', (e) => {
+        const activeTab = document.querySelector('.tab.active').dataset.filter;
+        filterCards(activeTab, e.target.value);
+      });
+
+      function filterCards(filter, q) {
+        q = (q || '').toLowerCase().trim();
+        cards.forEach(card => {
+          const status = card.dataset.status;
+          const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
+          const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
+          const matchesFilter = (filter === 'all') || (filter === status);
+          const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
+          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+        });
+      }
+
+      filterCards('all', '');
+    })();
+
+    /* VIEW ALL MODAL LOGIC */
+    (function () {
+      const viewBtns = document.querySelectorAll('.viewall');
+      
+      // Modal elements untuk Order
+      const orderModalOverlay = document.getElementById('order-modal-overlay');
+      const orderModalClose = document.getElementById('order-modal-close');
+      
+      // Modal elements untuk Reservation
+      const reservationModalOverlay = document.getElementById('reservation-modal-overlay');
+      const reservationModalClose = document.getElementById('reservation-modal-close');
+
+      viewBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.target.closest('.card');
+          if (!card) return;
+
+          const status = card.dataset.status;
+          
+          // Check if this is a reservation card
+          if (status === 'reservation' || card.classList.contains('reservation-card')) {
+            // Open Reservation Modal
+            reservationModalOverlay.setAttribute('aria-hidden', 'false');
+            reservationModalOverlay.classList.add('open');
+          } else {
+            // Open Order Modal
+            const badge = card.querySelector('.badge')?.textContent.trim() || '';
+            const name = card.querySelector('.name')?.textContent.trim() || '';
+            const order = card.querySelector('.order')?.textContent.trim() || '';
+            const dateEl = card.querySelector('.row.info > div');
+            const date = dateEl?.textContent.trim() || '';
+            
+            // Update order modal content
+            document.querySelector('.badge-large.pink').textContent = badge;
+            document.querySelector('.order-customer-name').textContent = name;
+            document.querySelector('.order-number').textContent = order;
+            document.querySelector('.order-date').textContent = date;
+            
+            // Get items
+            const itemNodes = Array.from(card.querySelectorAll('.item'));
+            const tableBody = document.getElementById('order-table-body');
+            
+            let html = '';
+            let total = 0;
+            itemNodes.forEach((item, idx) => {
+              const productText = item.querySelector('.left')?.textContent.trim() || '';
+              const qtyText = item.querySelector('.right')?.textContent.trim() || '1';
+              const qty = parseInt(qtyText, 10);
+              const price = 330000;
+              const subtotal = price * qty;
+              total += subtotal;
+              
+              html += `
+                <tr>
+                  <td>#${String(idx + 1).padStart(3, '0')}</td>
+                  <td>${productText.replace(/^#\s*\d+\s*/, '')}</td>
+                  <td>${qty}</td>
+                  <td>IDR ${price.toLocaleString('id-ID')}.00</td>
+                  <td>IDR ${subtotal.toLocaleString('id-ID')}.00</td>
+                </tr>
+              `;
+            });
+            
+            tableBody.innerHTML = html;
+            document.getElementById('order-total-price').textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
+            document.getElementById('order-grand-total').textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
+            
+            // Update status badge
+            const orderStatusBadge = document.querySelector('.order-status-badge');
+            orderStatusBadge.classList.remove('completed', 'cancelled', 'pending');
+            if (status === 'cancelled') {
+              orderStatusBadge.classList.add('cancelled');
+              orderStatusBadge.textContent = '✕ Cancelled';
+              orderStatusBadge.style.background = 'rgba(255, 70, 70, 0.15)';
+              orderStatusBadge.style.color = 'var(--danger)';
+            } else if (status === 'pending') {
+              orderStatusBadge.classList.add('pending');
+              orderStatusBadge.textContent = '⏱ Pending';
+              orderStatusBadge.style.background = 'rgba(255, 165, 0, 0.15)';
+              orderStatusBadge.style.color = 'var(--warning)';
+            } else {
+              orderStatusBadge.classList.add('completed');
+              orderStatusBadge.textContent = '✓ Completed';
+              orderStatusBadge.style.background = 'rgba(30, 144, 255, 0.15)';
+              orderStatusBadge.style.color = 'var(--icon-blue)';
+            }
+            
+            orderModalOverlay.setAttribute('aria-hidden', 'false');
+            orderModalOverlay.classList.add('open');
+          }
+        });
+      });
+
+      function closeOrderModal() {
+        orderModalOverlay.classList.remove('open');
+        orderModalOverlay.setAttribute('aria-hidden', 'true');
+      }
+      
+      function closeReservationModal() {
+        reservationModalOverlay.classList.remove('open');
+        reservationModalOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      orderModalClose.addEventListener('click', closeOrderModal);
+      orderModalOverlay.addEventListener('click', (e) => { 
+        if (e.target === orderModalOverlay) closeOrderModal(); 
+      });
+      
+      reservationModalClose.addEventListener('click', closeReservationModal);
+      reservationModalOverlay.addEventListener('click', (e) => { 
+        if (e.target === reservationModalOverlay) closeReservationModal(); 
+      });
+      
+      document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape') {
+          if (orderModalOverlay.classList.contains('open')) closeOrderModal();
+          if (reservationModalOverlay.classList.contains('open')) closeReservationModal();
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
