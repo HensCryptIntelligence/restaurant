@@ -1,0 +1,215 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+        
+body {
+    background: #111315;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+        
+.login-container {
+    background-color: #292C2D;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 700px;
+    padding: 60px;
+    animation: fadeIn 0.5s ease-in;
+  
+}
+        
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(200px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+        
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+        
+.logo h1 {
+    color: #17C3B2;
+    font-size: 50px;
+    font-weight: 700;
+}
+        
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+        
+.login-header h2 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+        
+.login-header p {
+    color: #ffffff;
+    font-size: 20px;
+}
+        
+.form-group {
+    margin-bottom: 20px;
+}
+
+        
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-weight: 500;
+}
+        
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    background-color: #3D4142;
+    color: white;
+}
+        
+.form-control:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+    outline: none;
+}
+        
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    
+}
+
+
+ 
+.checkbox-group a {
+    text-decoration: none;  
+    color: #17C3B2;  
+}
+
+.checkbox-group input {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+
+}
+        
+.checkbox-group label {
+    color: #17C3B2;
+    font-weight: normal;
+}
+        
+
+
+
+        
+.btn-login {
+    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    color: #333333;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+        
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+}
+        
+.btn-login:active {
+    transform: translateY(0);
+}
+        
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #777;
+    font-size: 15px;
+}
+
+.btn-login-Register{
+    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    color: #333333;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+}
+
+
+
+.btn-login-forgot{
+    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    color: #333333;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+}
+
+.form-group p{
+    margin-top: 50px;
+    text-align: center;
+    color: white;
+}
+
+.form-group a{
+    color: #17C3B2;
+    text-decoration: none;
+}
+
+.Regist{
+    text-align: center;
+    color: white;
+    margin-top: 40px;
+}
+
+
+.Login{
+    text-align: center;
+    color: white;
+    margin-top: 40px;
+}
+
+.Login a{
+    text-decoration: none;
+    color: #17C3B2;  
+}
+
+.forgot_Password {
+    text-decoration: none;
+    color: white;
+    
+}
+
+
+
+   

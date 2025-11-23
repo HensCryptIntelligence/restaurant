@@ -8,7 +8,7 @@ session_start();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bitehive — Inventory Management</title>
+  <title>Bitehive — Admin Dashboard</title>
   <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -23,8 +23,6 @@ session_start();
         <div class="brand">Bitehive</div>
 
         <nav class="nav">
-        
-        <a href="../dashboard/index.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="dashboard" aria-label="Dashboard">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -36,7 +34,6 @@ session_start();
             </span>
             <span class="label">Dashboard</span>
           </button>
-        </a>
 
           <button class="nav-item" data-target="user-management" aria-label="User Management">
             <span class="icon-wrapper">
@@ -48,6 +45,7 @@ session_start();
             <span class="label">User Management</span>
           </button>
 
+        <a href="../inventory/index.php" class="nav-link-wrapper">
           <button class="nav-item active" data-target="inventory" aria-label="Inventory">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -59,6 +57,7 @@ session_start();
             </span>
             <span class="label">Inventory</span>
           </button>
+        </a>
 
           <button class="nav-item" data-target="reservation" aria-label="Reservation">
             <span class="icon-wrapper">
@@ -132,8 +131,8 @@ session_start();
 
         <div class="content">
 
-          <?php 
-            include __DIR__ . '/table-content/index_menu.php';
+        <?php 
+            include __DIR__ . '/dashboard.php';
           ?>
 
         </div>
@@ -216,7 +215,6 @@ session_start();
       }
     });
 
-    // Close sidebar on window resize
     window.addEventListener('resize', function() {
       if (window.innerWidth > 768) {
         sidebar.classList.remove('active');
@@ -224,6 +222,7 @@ session_start();
         menuToggle.setAttribute('aria-expanded', 'false');
       }
     });
+
   </script>
 </body>
 </html>
