@@ -47,12 +47,12 @@
 
         /* Header */
         .content-header {
-            padding: 2rem;
-            background-color: var(--bg-panel);
+            background-color: var(--black);
             border-bottom: 1px solid var(--border-subtle);
             position: sticky;
             top: 0;
             z-index: 50;
+            margin-bottom: 3.5rem;
         }
 
         .header-top {
@@ -65,8 +65,8 @@
         .content-header h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text-bright);
-            margin-bottom: 0.5rem;
+            color: var(--accent-green);
+            margin-bottom: 1rem;
         }
 
         .header-description {
