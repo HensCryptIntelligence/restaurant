@@ -3,6 +3,9 @@
 session_start();
 require "../../auth/config/koneksi.php";
 
+  header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+  header("Pragma: no-cache");
+
 // Hanya admin yang boleh akses
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../../auth/views/login.php");
@@ -235,15 +238,17 @@ switch ($filter) {
       }
     }
 
+ 
     // Logout functionality
     logoutBtn.addEventListener('click', function() {
       if (confirm('Are you sure you want to log out?')) {
+
         // Clear localStorage
         localStorage.removeItem('sidebarOpen');
         localStorage.removeItem('activeMenu');
-        // Redirect to login page or perform logout action
-        console.log('Logging out...');
-        // window.location.href = '/login';
+
+        // Redirect to logout process
+        window.location.href = "../../auth/controllers/logout.php";
       }
     });
 
@@ -255,6 +260,14 @@ switch ($filter) {
         menuToggle.setAttribute('aria-expanded', 'false');
       }
     });
+
+
+      // Mencegah kembali ke halaman sebelumnya
+    history.pushState(null, "", location.href);
+    window.onpopstate = function () {
+          history.pushState(null, "", location.href);
+    };
+
   </script>
 </body>
 </html>
