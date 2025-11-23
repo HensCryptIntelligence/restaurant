@@ -29,7 +29,7 @@
             <input type="password" name="password" class="form-control" required>
         </div>
         <div class="checkbox-group">
-            <a href="ForgotPassword.html" class="forgot_Password">Forgot your password?</a>
+            <a href="ForgotPassword.php" class="forgot_Password">Forgot your password?</a>
         </div>
                  
         <button type="submit" class="btn-login">Login</button>

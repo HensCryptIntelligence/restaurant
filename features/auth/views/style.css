@@ -116,7 +116,7 @@ body {
 
         
 .btn-login {
-    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    background: #17C3B2;
     color: #333333;
     border: none;
     border-radius: 8px;
@@ -146,7 +146,7 @@ body {
 }
 
 .btn-login-Register{
-    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    background: #17C3B2;
     color: #333333;
     border: none;
     border-radius: 8px;
@@ -162,7 +162,7 @@ body {
 
 
 .btn-login-forgot{
-    background: linear-gradient(#6c6870 0%, #17C3B2 100%);
+    background: #17C3B2;
     color: #333333;
     border: none;
     border-radius: 8px;
@@ -190,6 +190,11 @@ body {
     text-align: center;
     color: white;
     margin-top: 40px;
+}
+
+.Regist a{
+    color: #17C3B2;
+    text-decoration: none;
 }
 
 

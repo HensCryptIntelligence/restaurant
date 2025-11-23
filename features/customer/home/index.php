@@ -1,6 +1,9 @@
-
 <?php
-session_start();
+  session_start();
+  if (!isset($_SESSION['role']) || $_SESSION['role'] !== "customer") {
+      header("Location: ../../auth/views/login.php");
+      exit;
+  }
 ?>
 
 <!doctype html>

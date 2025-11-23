@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($data['role'] === "admin") {
         header("Location: ../../admin/user_management/user_management.php");
     } else {
-        header("Location: ../views/client_dashboard.php");
+        header("Location: ../../customer/home/index.php");
     }
     exit;
 }
