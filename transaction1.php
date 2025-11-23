@@ -3,7 +3,7 @@
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db   = 'restaurant'; // sudah sesuai yang kamu tulis
+$db   = 'restaurant';
 
 $mysqli = new mysqli($host, $user, $pass, $db);
 
@@ -33,7 +33,6 @@ function getUserName($mysqli, $id_user) {
 
     $res = $stmt->get_result();
     if ($row = $res->fetch_assoc()) {
-        // tabel kamu pakai 'fullname'
         if (!empty($row['fullname'])) {
             $default = $row['fullname'];
         }
@@ -50,6 +49,7 @@ function formatIdr($amount) {
     return 'IDR ' . number_format((float)$amount, 0, ',', '.');
 }
 
+// ====== AMBIL DATA ORDER (transaction_order) ======
 $orders = [];
 $orderSql = "
     SELECT 
@@ -77,6 +77,7 @@ if ($result = $mysqli->query($orderSql)) {
     $result->free();
 }
 
+// ====== AMBIL DATA RESERVATION (transaction_reservation) ======
 $reservations = [];
 $resSql = "
     SELECT
@@ -118,6 +119,7 @@ if ($result = $mysqli->query($resSql)) {
 </head>
 <body>
   <div class="app">
+    <!-- SIDEBAR -->
     <aside class="sidebar" aria-label="Sidebar navigation">
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
@@ -147,12 +149,14 @@ if ($result = $mysqli->query($resSql)) {
 
       <div class="sidebar-bottom">
         <button class="logout" aria-label="Logout"
-        style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
+          style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
       </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
       <div class="main-inner">
+        <!-- TOPBAR -->
         <header class="topbar">
           <div class="title-wrap">
             <div class="chev">›</div>
@@ -165,6 +169,7 @@ if ($result = $mysqli->query($resSql)) {
           </div>
         </header>
 
+        <!-- CONTROLS -->
         <section class="controls">
           <div class="tabs" role="tablist" aria-label="Filter transactions">
             <button class="tab active" data-filter="all">All</button>
@@ -182,18 +187,27 @@ if ($result = $mysqli->query($resSql)) {
           </div>
         </section>
 
+        <!-- CARDS -->
         <section id="cards" class="cards-grid">
           <?php
           $badgeNo = 1;
 
+          // ====== CARD ORDER (USER VIEW) ======
           foreach ($orders as $order):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
+              // status: pending / confirmed / cancelled
               $statusDb = $order['trx_status'];
               if ($statusDb === 'confirmed') {
+                  // SUDAH di-approve admin
                   $statusClass = 'completed';
                   $statusLabel = '✓ Completed';
+              } elseif ($statusDb === 'pending') {
+                  // BELUM di-approve admin
+                  $statusClass = 'pending';
+                  $statusLabel = '⌛ Pending';
               } else {
+                  // cancelled
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
               }
@@ -204,7 +218,7 @@ if ($result = $mysqli->query($resSql)) {
               $totalAmount = $order['total_amount'];
 
               $dateText = date('l, d-m-Y', $ts);
-              $timeText = date('h : i A', $ts);  
+              $timeText = date('h : i A', $ts);
           ?>
           <article class="card" data-status="<?php echo $statusClass; ?>">
             <div class="card-header">
@@ -215,6 +229,7 @@ if ($result = $mysqli->query($resSql)) {
               </div>
               <div class="status <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></div>
             </div>
+
             <div class="card-body">
               <div class="row info">
                 <div><?php echo $dateText; ?></div>
@@ -225,8 +240,6 @@ if ($result = $mysqli->query($resSql)) {
 
               <div class="items">
                 <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <?php
-                ?>
                 <div class="item">
                   <div class="left"># 01 <?php echo htmlspecialchars($order['name_item']); ?></div>
                   <div class="right"><?php echo (int)$order['quantity']; ?></div>
@@ -247,10 +260,12 @@ if ($result = $mysqli->query($resSql)) {
               $badgeNo++;
           endforeach;
 
+          // ====== CARD RESERVATION (USER VIEW) ======
           foreach ($reservations as $reservation):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-              $statusDb = $reservation['trx_status']; // 'pending' / 'confirmed'
+              // trx_status: pending / confirmed / cancelled
+              $statusDb = $reservation['trx_status'];
               if ($statusDb === 'confirmed') {
                   $statusClass = 'completed';
                   $statusLabel = '✓ Completed';
@@ -258,17 +273,24 @@ if ($result = $mysqli->query($resSql)) {
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
               } else {
-                  $statusClass = 'cancelled'; // styling saja
+                  // pending
+                  $statusClass = 'pending';
                   $statusLabel = '⌛ Pending';
               }
 
               $ts = $reservation['created_at'] ? strtotime($reservation['created_at']) : time();
               $customerName = getUserName($mysqli, $reservation['id_user']);
 
-              $dateText = date('d-m-Y', $ts);
-              $timeText = date('h:i A', $ts);
-              $seats = (int)$reservation['seats'];
-              $deposit = $reservation['total_amount']; // dari payment_reservation
+              $dateText = $reservation['reservation_date']
+                  ? date('d-m-Y', strtotime($reservation['reservation_date']))
+                  : date('d-m-Y', $ts);
+
+              $timeText = $reservation['reservation_start']
+                  ? date('h : i A', strtotime($reservation['reservation_start']))
+                  : date('h : i A', $ts);
+
+              $seats   = (int)$reservation['seats'];
+              $deposit = $reservation['total_amount'];
           ?>
           <article class="card reservation-card" data-status="reservation">
             <div class="reservation-image-container">
@@ -440,6 +462,7 @@ if ($result = $mysqli->query($resSql)) {
       });
     })();
 
+    /* LIMIT ITEMS TO 3 (kalau nanti ada lebih dari 1 item) */
     (function () {
       const allCards = document.querySelectorAll('.card:not(.reservation-card)');
       allCards.forEach(card => {
@@ -452,10 +475,35 @@ if ($result = $mysqli->query($resSql)) {
       });
     })();
 
+    /* FILTER & SEARCH */
     (function () {
       const tabs = document.querySelectorAll('.tab');
       const cards = document.querySelectorAll('.card');
       const search = document.getElementById('search');
+
+      function filterCards(filter, q) {
+        q = (q || '').toLowerCase().trim();
+
+        cards.forEach(card => {
+          const status = card.dataset.status;
+          const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
+          const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
+          const isReservation = status === 'reservation';
+
+          const matchesFilter =
+            (filter === 'all') ||
+            (filter === 'reservation' && isReservation) ||
+            (filter === status);
+
+          const matchesQuery =
+            !q ||
+            name.includes(q) ||
+            order.includes(q) ||
+            card.textContent.toLowerCase().includes(q);
+
+          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+        });
+      }
 
       tabs.forEach(t => t.addEventListener('click', () => {
         tabs.forEach(x => x.classList.remove('active'));
@@ -463,21 +511,10 @@ if ($result = $mysqli->query($resSql)) {
         filterCards(t.dataset.filter, search.value);
       }));
 
-      search.addEventListener('input', (e) => {
-        const activeTab = document.querySelector('.tab.active').dataset.filter;
-        filterCards(activeTab, e.target.value);
-      });
-
-      function filterCards(filter, q) {
-        q = (q || '').toLowerCase().trim();
-        cards.forEach(card => {
-          const status = card.dataset.status;
-          const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
-          const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
-          const isReservation = status === 'reservation';
-          const matchesFilter = (filter === 'all') || (filter === 'reservation' && isReservation) || (filter === status);
-          const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
-          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+      if (search) {
+        search.addEventListener('input', (e) => {
+          const activeTab = document.querySelector('.tab.active').dataset.filter;
+          filterCards(activeTab, e.target.value);
         });
       }
 
@@ -500,13 +537,14 @@ if ($result = $mysqli->query($resSql)) {
       const modalStatusBtn = document.getElementById('modal-status-btn');
 
       function formatIDR(n) {
+        n = Number(n) || 0;
         return 'IDR ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       }
 
       viewBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           const card = e.target.closest('.card');
-          if (!card) return;
+          if (!card || card.classList.contains('reservation-card')) return;
 
           const badge = card.querySelector('.badge')?.textContent.trim() || '';
           const name = card.querySelector('.name')?.textContent.trim() || '';
@@ -516,10 +554,10 @@ if ($result = $mysqli->query($resSql)) {
 
           const itemNodes = Array.from(card.querySelectorAll('.item'));
           const items = itemNodes.map((it, idx) => {
-            const id = '#00' + (idx+1);
+            const id = '#00' + (idx + 1);
             const product = it.querySelector('.left')?.textContent.trim() || 'Product';
             const qty = parseInt(it.querySelector('.right')?.textContent.trim() || '1', 10);
-            const price = 330000; // sama seperti HTML asli
+            const price = 330000; // sama seperti desain awal
             return { id, product, qty, price, subtotal: price * qty };
           });
 
@@ -530,9 +568,17 @@ if ($result = $mysqli->query($resSql)) {
           modalOrder.textContent = order;
           modalDate.textContent = date;
 
-          modalStatusBtn.classList.remove('completed', 'cancelled');
-          modalStatusBtn.classList.add(status === 'cancelled' ? 'cancelled' : 'completed');
-          modalStatusBtn.textContent = status === 'cancelled' ? '✕ Cancelled' : '✓ Completed';
+          modalStatusBtn.classList.remove('completed', 'cancelled', 'pending');
+          if (status === 'cancelled') {
+            modalStatusBtn.classList.add('cancelled');
+            modalStatusBtn.textContent = '✕ Cancelled';
+          } else if (status === 'pending') {
+            modalStatusBtn.classList.add('pending');
+            modalStatusBtn.textContent = '⌛ Pending';
+          } else {
+            modalStatusBtn.classList.add('completed');
+            modalStatusBtn.textContent = '✓ Completed';
+          }
 
           modalItems.innerHTML = items.map(it => `
             <tr>
@@ -557,11 +603,21 @@ if ($result = $mysqli->query($resSql)) {
         modalOverlay.setAttribute('aria-hidden', 'true');
       }
 
-      modalClose.addEventListener('click', closeModal);
-      modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal(); });
+      if (modalClose && modalOverlay) {
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+          if (e.target === modalOverlay) closeModal();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
+          closeModal();
+        }
+      });
     })();
 
+    /* VIEW RESERVATION MODAL */
     (function () {
       const resBtns = document.querySelectorAll('.view-reservation');
       const resOverlay = document.getElementById('res-modal-overlay');
@@ -584,7 +640,7 @@ if ($result = $mysqli->query($resSql)) {
           const tableName = card.querySelector('.overlay-meta .name')?.textContent.trim() || 'Table';
           const reservationId = card.querySelector('.overlay-meta .order')?.textContent.trim() || '#id';
           const datetime = card.querySelector('.reservation-datetime')?.textContent.trim() || '';
-          const seats = card.querySelector('.info-value')?.textContent.trim() || 'n/a';
+          const seats = card.querySelector('.info-item .info-value')?.textContent.trim() || 'n/a';
           const infoItems = card.querySelectorAll('.info-item');
           const customer = infoItems[2]?.querySelector('.info-value')?.textContent.trim() || '';
           const deposit = infoItems[1]?.querySelector('.info-value')?.textContent.trim() || '';
@@ -595,7 +651,7 @@ if ($result = $mysqli->query($resSql)) {
           resId.textContent = reservationId;
           resCustomer.textContent = customer;
           resSeats.textContent = seats;
-          
+
           if (datetime.indexOf('•') > -1) {
             const parts = datetime.split('•').map(s => s.trim());
             resDate.textContent = parts[0];
@@ -616,12 +672,20 @@ if ($result = $mysqli->query($resSql)) {
         resOverlay.setAttribute('aria-hidden', 'true');
       }
 
-      resClose.addEventListener('click', closeResModal);
-      resOverlay.addEventListener('click', (e) => { if (e.target === resOverlay) closeResModal(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && resOverlay.classList.contains('open')) closeResModal(); });
+      if (resClose && resOverlay) {
+        resClose.addEventListener('click', closeResModal);
+        resOverlay.addEventListener('click', (e) => {
+          if (e.target === resOverlay) closeResModal();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && resOverlay.classList.contains('open')) {
+          closeResModal();
+        }
+      });
     })();
   </script>
-
 </body>
 </html>
 <?php

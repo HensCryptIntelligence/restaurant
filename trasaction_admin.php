@@ -1,3 +1,147 @@
+<?php
+// ====== KONFIG DATABASE ======
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$db   = 'restaurant';
+
+$mysqli = new mysqli($host, $user, $pass, $db);
+
+if ($mysqli->connect_errno) {
+    die('Koneksi database gagal: ' . $mysqli->connect_error);
+}
+
+/* =========================
+   HANDLE APPROVE / CANCEL
+   ========================= */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $type   = $_POST['type']   ?? '';
+    $id     = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+
+    if ($id > 0 && in_array($action, ['approve','cancel']) && in_array($type, ['order','reservation'])) {
+
+        $newStatus = ($action === 'approve') ? 'confirmed' : 'cancelled';
+
+        if ($type === 'order') {
+            // update status di transaction_order
+            $stmt = $mysqli->prepare("UPDATE transaction_order SET status = ? WHERE id_transaction_order = ?");
+        } else {
+            // update status di transaction_reservation
+            $stmt = $mysqli->prepare("UPDATE transaction_reservation SET status = ? WHERE id_transaction_reservation = ?");
+        }
+
+        if ($stmt) {
+            $stmt->bind_param("si", $newStatus, $id);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+
+    // refresh halaman agar data terbaru langsung muncul
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// ====== HELPER ======
+function getUserName($mysqli, $id_user) {
+    $id_user = (int)$id_user;
+    if ($id_user <= 0) {
+        return 'Unknown';
+    }
+
+    $default = 'User #' . $id_user;
+
+    $stmt = $mysqli->prepare("SELECT fullname FROM users WHERE id_user = ? LIMIT 1");
+    if (!$stmt) {
+        return $default;
+    }
+
+    $stmt->bind_param("i", $id_user);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        return $default;
+    }
+
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        if (!empty($row['fullname'])) {
+            $default = $row['fullname'];
+        }
+    }
+
+    $stmt->close();
+    return $default;
+}
+
+function formatIdr($amount) {
+    if ($amount === null) {
+        return 'IDR -';
+    }
+    return 'IDR ' . number_format((float)$amount, 0, ',', '.');
+}
+
+// ====== AMBIL DATA ORDER (transaction_order) ======
+$orders = [];
+
+$orderSql = "
+    SELECT 
+        t.id_transaction_order,
+        t.id_user,
+        t.status AS trx_status,
+        t.created_at,
+        c.id_cart_order,
+        c.name_item,
+        c.quantity,
+        c.subtotal,
+        c.price,
+        p.total_amount,
+        p.received,
+        p.return_amount
+    FROM transaction_order t
+    JOIN cart_order c ON t.id_cart_order = c.id_cart_order
+    JOIN payment_order p ON t.id_payment_order = p.id_payment_order
+    ORDER BY t.created_at DESC
+";
+
+if ($result = $mysqli->query($orderSql)) {
+    while ($row = $result->fetch_assoc()) {
+        $orders[] = $row;
+    }
+    $result->free();
+}
+
+// ====== AMBIL DATA RESERVATION (transaction_reservation) ======
+$reservations = [];
+
+$resSql = "
+    SELECT
+        tr.id_transaction_reservation,
+        tr.id_user,
+        tr.id_reservation,
+        tr.status AS trx_status,
+        tr.created_at,
+        r.id_reservation_room,
+        r.seats,
+        r.reservation_date,
+        r.reservation_start,
+        r.status AS reservation_status,
+        rr.price_place,
+        pr.total_amount
+    FROM transaction_reservation tr
+    JOIN reservation r ON tr.id_reservation = r.id_reservation
+    JOIN reservation_rooms rr ON r.id_reservation_room = rr.id_reservation_room
+    JOIN payment_reservation pr ON tr.id_payment_reservation = pr.id_payment_reservation
+    ORDER BY tr.created_at DESC
+";
+
+if ($result = $mysqli->query($resSql)) {
+    while ($row = $result->fetch_assoc()) {
+        $reservations[] = $row;
+    }
+    $result->free();
+}
+?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -110,7 +254,7 @@
         <!-- TOPBAR -->
         <header class="topbar">
           <div class="title-wrap">
-            <div class="chev">></div>
+            <div class="chev">›</div>
             <h1 class="title">Transaction</h1>
           </div>
 
@@ -150,204 +294,167 @@
 
         <!-- CARDS -->
         <section id="cards" class="cards-grid">
-          <!-- ORDER CARD 1 -->
-          <article class="card" data-status="completed">
+          <?php
+          $badgeNo = 1;
+
+          // ====== CARD ORDER ======
+          foreach ($orders as $order):
+              $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
+
+              $statusDb = $order['trx_status']; // pending / confirmed / cancelled
+              if ($statusDb === 'confirmed') {
+                  $statusClass = 'completed';
+                  $statusLabel = '✓ Completed';
+              } elseif ($statusDb === 'pending') {
+                  $statusClass = 'pending';
+                  $statusLabel = '⏱ Pending';
+              } else {
+                  $statusClass = 'cancelled';
+                  $statusLabel = '✕ Cancelled';
+              }
+
+              $ts = $order['created_at'] ? strtotime($order['created_at']) : time();
+              $dateText = date('l, d-m-Y', $ts);
+              $timeText = date('h : i A', $ts);
+
+              $customerName = getUserName($mysqli, $order['id_user']);
+
+              $totalAmount   = (float)$order['total_amount'];
+              $received      = (float)$order['received'];
+              $returnAmount  = (float)$order['return_amount'];
+              $qty           = (int)$order['quantity'];
+              $price         = (float)$order['price'];
+          ?>
+          <article
+            class="card"
+            data-status="<?php echo $statusClass; ?>"
+            data-type="order"
+            data-order-id="<?php echo $order['id_transaction_order']; ?>"
+            data-total="<?php echo htmlspecialchars($totalAmount, ENT_QUOTES); ?>"
+            data-received="<?php echo htmlspecialchars($received, ENT_QUOTES); ?>"
+            data-return="<?php echo htmlspecialchars($returnAmount, ENT_QUOTES); ?>"
+          >
             <div class="card-header">
-              <div class="badge">01</div>
+              <div class="badge"><?php echo $badge; ?></div>
               <div class="meta">
-                <div class="name">Watson Joyce</div>
-                <div class="order">Order #002</div>
+                <div class="name"><?php echo htmlspecialchars($customerName); ?></div>
+                <div class="order">Order #<?php echo sprintf('%03d', $order['id_transaction_order']); ?></div>
               </div>
-              <div class="status completed">✓ Completed</div>
+              <div class="status <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></div>
             </div>
+
             <div class="card-body">
               <div class="row info">
-                <div>Wednesday, 28-08-2025</div>
-                <div>04 : 34 PM</div>
+                <div><?php echo $dateText; ?></div>
+                <div><?php echo $timeText; ?></div>
               </div>
               <hr />
               <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Scrambled eggs with toast</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Smoked Salmon Bagel</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 03 Belgian Waffles</div><div class="right">02</div></div>
-                <div class="item hidden-item"><div class="left"># 04 Pancakes</div><div class="right">01</div></div>
-                <div class="item hidden-item"><div class="left"># 05 French Toast</div><div class="right">02</div></div>
+                <div class="items-header">
+                  <div>Serial Items</div>
+                  <div>Qty</div>
+                </div>
+
+                <div
+                  class="item"
+                  data-price="<?php echo htmlspecialchars($price, ENT_QUOTES); ?>"
+                >
+                  <div class="left"># 01 <?php echo htmlspecialchars($order['name_item']); ?></div>
+                  <div class="right"><?php echo $qty; ?></div>
+                </div>
               </div>
               <hr />
-              <div class="total"><div>Total Price</div><div>IDR 3.300.000,00</div></div>
+              <div class="total">
+                <div>Total Price</div>
+                <div><?php echo formatIdr($totalAmount); ?></div>
+              </div>
               <button class="viewall">View All</button>
             </div>
           </article>
+          <?php
+              $badgeNo++;
+          endforeach;
 
-          <!-- ORDER CARD 2 -->
-          <article class="card" data-status="cancelled">
-            <div class="card-header">
-              <div class="badge">02</div>
-              <div class="meta">
-                <div class="name">Aisyah Rahma</div>
-                <div class="order">Order #010</div>
-              </div>
-              <div class="status cancelled">✕ Cancelled</div>
-            </div>
-            <div class="card-body">
-              <div class="row info">
-                <div>Tuesday, 27-08-2025</div>
-                <div>02 : 20 PM</div>
-              </div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Smoked Beef Sandwich</div><div class="right">02</div></div>
-                <div class="item"><div class="left"># 02 Green Salad</div><div class="right">01</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 1.200.000,00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+          // ====== CARD RESERVATION ======
+          foreach ($reservations as $reservation):
+              $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-          <!-- ORDER CARD 3 -->
-          <article class="card" data-status="completed">
-            <div class="card-header">
-              <div class="badge">03</div>
-              <div class="meta">
-                <div class="name">Budi Santoso</div>
-                <div class="order">Order #011</div>
-              </div>
-              <div class="status completed">✓ Completed</div>
-            </div>
-            <div class="card-body">
-              <div class="row info">
-                <div>Monday, 26-08-2025</div>
-                <div>10 : 10 AM</div>
-              </div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Chicken Pasta</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Orange Juice</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 350.000,00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+              $statusTrx   = $reservation['trx_status'];          // pending / confirmed / cancelled
+              $statusRes   = $reservation['reservation_status'];  // pending/confirmed/seated/cancelled
 
-          <!-- ORDER CARD 4 -->
-          <article class="card" data-status="pending">
-            <div class="card-header">
-              <div class="badge">04</div>
-              <div class="meta">
-                <div class="name">Siti Nurhaliza</div>
-                <div class="order">Order #012</div>
-              </div>
-              <div class="status pending">⏱ Pending</div>
-            </div>
-            <div class="card-body">
-              <div class="row info">
-                <div>Monday, 26-08-2025</div>
-                <div>11 : 45 AM</div>
-              </div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Caesar Salad</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Iced Coffee</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 280.000,00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+              if ($statusTrx === 'cancelled' || $statusRes === 'cancelled') {
+                  $statusClass = 'cancelled';
+                  $statusLabel = '✕ Cancelled';
+              } elseif ($statusTrx === 'confirmed' || $statusRes === 'confirmed' || $statusRes === 'seated') {
+                  $statusClass = 'completed';
+                  $statusLabel = '✓ Completed';
+              } elseif ($statusTrx === 'pending' || $statusRes === 'pending') {
+                  $statusClass = 'pending';
+                  $statusLabel = '⏱ Pending';
+              } else {
+                  $statusClass = 'pending';
+                  $statusLabel = '⏱ Pending';
+              }
 
-          <!-- ORDER CARD 5 -->
-          <article class="card" data-status="completed">
-            <div class="card-header">
-              <div class="badge">05</div>
-              <div class="meta">
-                <div class="name">Ahmad Rizki</div>
-                <div class="order">Order #013</div>
-              </div>
-              <div class="status completed">✓ Completed</div>
-            </div>
-            <div class="card-body">
-              <div class="row info">
-                <div>Sunday, 25-08-2025</div>
-                <div>02 : 15 PM</div>
-              </div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Beef Burger</div><div class="right">02</div></div>
-                <div class="item"><div class="left"># 02 French Fries</div><div class="right">02</div></div>
-                <div class="item"><div class="left"># 03 Coca Cola</div><div class="right">02</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 450.000,00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+              $dateText = $reservation['reservation_date']
+                  ? date('d-m-Y', strtotime($reservation['reservation_date']))
+                  : date('d-m-Y', strtotime($reservation['created_at']));
 
-          <!-- ORDER CARD 6 -->
-          <article class="card" data-status="cancelled">
-            <div class="card-header">
-              <div class="badge">06</div>
-              <div class="meta">
-                <div class="name">Linda Kartika</div>
-                <div class="order">Order #014</div>
-              </div>
-              <div class="status cancelled">✕ Cancelled</div>
-            </div>
-            <div class="card-body">
-              <div class="row info">
-                <div>Sunday, 25-08-2025</div>
-                <div>05 : 30 PM</div>
-              </div>
-              <hr />
-              <div class="items">
-                <div class="items-header"><div>Serial Items</div><div>Qty</div></div>
-                <div class="item"><div class="left"># 01 Pizza Margherita</div><div class="right">01</div></div>
-                <div class="item"><div class="left"># 02 Garlic Bread</div><div class="right">01</div></div>
-              </div>
-              <hr />
-              <div class="total"><div>Total Price</div><div>IDR 380.000,00</div></div>
-              <button class="viewall">View All</button>
-            </div>
-          </article>
+              $timeText = $reservation['reservation_start']
+                  ? date('h : i A', strtotime($reservation['reservation_start']))
+                  : date('h : i A', strtotime($reservation['created_at']));
 
-          <!-- RESERVATION CARD -->
-          <article class="card reservation-card" data-status="reservation">
+              $seats   = (int)$reservation['seats'];
+              $deposit = (float)$reservation['total_amount'];
+              $customerName = getUserName($mysqli, $reservation['id_user']);
+              $roomCode = $reservation['id_reservation_room'];
+          ?>
+          <article
+            class="card reservation-card"
+            data-status="reservation" 
+            data-type="reservation"
+            data-reservation-id="<?php echo $reservation['id_transaction_reservation']; ?>"
+          >
             <div class="reservation-image-container">
               <img src="foto/download.jpg" alt="Table photo">
               <div class="reservation-overlay-info">
-                <div class="badge">07</div>
+                <div class="badge"><?php echo $badge; ?></div>
                 <div class="overlay-meta">
-                  <div class="name">Table #01</div>
-                  <div class="order">Reservation ID #12354564</div>
+                  <div class="name">Table #<?php echo htmlspecialchars($roomCode); ?></div>
+                  <div class="order">Reservation ID #<?php echo sprintf('%08d', $reservation['id_transaction_reservation']); ?></div>
                 </div>
               </div>
             </div>
             <div class="reservation-body-new">
-              <div class="status completed">✓ Completed</div>
-              <div class="reservation-datetime">28-03-2024 • 03 : 00 PM</div>
+              <div class="status <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></div>
+              <div class="reservation-datetime">
+                <?php echo $dateText; ?> • <?php echo $timeText; ?>
+              </div>
               <div class="reservation-info-grid">
                 <div class="info-item">
                   <span class="info-label">Seats</span>
-                  <strong class="info-value">05 persons</strong>
+                  <strong class="info-value"><?php echo str_pad($seats, 2, '0', STR_PAD_LEFT); ?> persons</strong>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Deposit Fee</span>
-                  <strong class="info-value">IDR 1.000.000,00</strong>
+                  <strong class="info-value"><?php echo formatIdr($deposit); ?></strong>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Customer</span>
-                  <strong class="info-value">Watson Joyce</strong>
+                  <strong class="info-value"><?php echo htmlspecialchars($customerName); ?></strong>
                 </div>
               </div>
               <button class="viewall view-reservation">View All</button>
             </div>
           </article>
+          <?php
+              $badgeNo++;
+          endforeach;
+
+          if (empty($orders) && empty($reservations)) {
+              echo '<p>Tidak ada transaksi.</p>';
+          }
+          ?>
         </section>
       </div>
     </main>
@@ -507,7 +614,14 @@
     </div>
   </div>
 
-  <!-- SCRIPT -->
+  <!-- FORM UNTUK KIRIM APPROVE / CANCEL -->
+  <form id="status-form" method="post" style="display:none;">
+    <input type="hidden" name="action" id="status-action">
+    <input type="hidden" name="type" id="status-type">
+    <input type="hidden" name="id" id="status-id">
+  </form>
+
+  <!-- JS LANGSUNG DI FILE PHP -->
   <script>
     /* NAV ACTIVE */
     (function () {
@@ -531,7 +645,7 @@
       });
     })();
 
-    /* LIMIT ITEMS TO 3 (show 3 pertama, sisanya di View All) */
+    /* LIMIT ITEMS TO 3 */
     (function () {
       const allCards = document.querySelectorAll('.card:not(.reservation-card)');
       allCards.forEach(card => {
@@ -557,7 +671,11 @@
           const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
 
           const matchesFilter =
-            filter === 'all' || filter === status; // reservation hanya muncul saat ALL
+            filter === 'all' ||
+            filter === status ||
+            (filter === 'completed' && status === 'completed') ||
+            (filter === 'pending' && status === 'pending') ||
+            (filter === 'cancelled' && status === 'cancelled');
 
           const matchesQuery =
             !q ||
@@ -587,7 +705,7 @@
       filterCards('all', '');
     })();
 
-    /* VIEW ALL -> DETAIL ORDER & DETAIL RESERVATION */
+    /* VIEW ALL -> DETAIL ORDER & DETAIL RESERVATION + APPROVE/CANCEL */
     (function () {
       const orderModalOverlay = document.getElementById('order-modal-overlay');
       const orderModalClose = document.getElementById('order-modal-close');
@@ -595,8 +713,41 @@
       const reservationModalClose = document.getElementById('reservation-modal-close');
       const viewBtns = document.querySelectorAll('.viewall');
 
+      const badgeLarge = document.querySelector('.badge-large.pink');
+      const orderCustomerName = document.querySelector('.order-customer-name');
+      const orderNumber = document.querySelector('.order-number');
+      const orderDate = document.querySelector('.order-date');
+      const orderTime = document.querySelector('.order-time');
+
+      const tableBody = document.getElementById('order-table-body');
+      const totalPriceEl = document.getElementById('order-total-price');
+      const grandTotalEl = document.getElementById('order-grand-total');
+      const receivedEl = document.getElementById('order-received');
+      const returnEl = document.getElementById('order-return');
+      const orderStatusBadge = document.querySelector('.order-status-badge');
+
+      const statusForm = document.getElementById('status-form');
+      const statusActionInput = document.getElementById('status-action');
+      const statusTypeInput = document.getElementById('status-type');
+      const statusIdInput = document.getElementById('status-id');
+
+      const orderCancelBtn = document.querySelector('#order-modal-overlay .btn-cancel');
+      const orderApproveBtn = document.querySelector('#order-modal-overlay .btn-approve');
+      const resCancelBtn   = document.querySelector('#reservation-modal-overlay .btn-cancel');
+      const resApproveBtn  = document.querySelector('#reservation-modal-overlay .btn-approve');
+
+      let currentOrderId = null;
+      let currentReservationId = null;
+
+      function formatIDR(num) {
+        const n = Number(num) || 0;
+        return 'IDR ' + n.toLocaleString('id-ID') + '.00';
+      }
+
       function openOrderModalFromCard(card) {
         if (!orderModalOverlay) return;
+
+        currentOrderId = card.getAttribute('data-order-id');
 
         const badge = card.querySelector('.badge')?.textContent.trim() || '';
         const name = card.querySelector('.name')?.textContent.trim() || '';
@@ -604,12 +755,11 @@
         const infoDivs = card.querySelectorAll('.row.info > div');
         const date = infoDivs[0]?.textContent.trim() || '';
         const time = infoDivs[1]?.textContent.trim() || '';
+        const status = card.dataset.status || 'completed';
 
-        const badgeLarge = document.querySelector('.badge-large.pink');
-        const orderCustomerName = document.querySelector('.order-customer-name');
-        const orderNumber = document.querySelector('.order-number');
-        const orderDate = document.querySelector('.order-date');
-        const orderTime = document.querySelector('.order-time');
+        const totalFromCard = parseFloat(card.getAttribute('data-total') || '0');
+        const receivedFromCard = parseFloat(card.getAttribute('data-received') || '0');
+        const returnFromCard = parseFloat(card.getAttribute('data-return') || '0');
 
         if (badgeLarge) badgeLarge.textContent = badge;
         if (orderCustomerName) orderCustomerName.textContent = name;
@@ -618,11 +768,8 @@
         if (orderTime) orderTime.textContent = time;
 
         const itemNodes = Array.from(card.querySelectorAll('.items .item'));
-        const tableBody = document.getElementById('order-table-body');
-
         let rowsHtml = '';
-        let total = 0;
-        const defaultPrice = 330000; // harga default per item, bisa diubah nanti
+        let totalCalc = 0;
 
         itemNodes.forEach((item, idx) => {
           const productText = item.querySelector('.left')?.textContent.trim() || '';
@@ -630,51 +777,43 @@
           const qty = parseInt(qtyText, 10) || 0;
 
           const productName = productText.replace(/^#\s*\d+\s*/, '');
-          const price = defaultPrice;
+          const priceAttr = parseFloat(item.getAttribute('data-price') || '0');
+
+          let price = priceAttr;
+          if (!price && totalFromCard && qty) {
+            price = totalFromCard / qty;
+          }
+          if (!price) price = 330000;
+
           const subtotal = price * qty;
-          total += subtotal;
+          totalCalc += subtotal;
 
           rowsHtml += `
             <tr>
               <td>#${String(idx + 1).padStart(3, '0')}</td>
               <td>${productName}</td>
               <td>${qty}</td>
-              <td>IDR ${price.toLocaleString('id-ID')}.00</td>
-              <td>IDR ${subtotal.toLocaleString('id-ID')}.00</td>
+              <td>${formatIDR(price)}</td>
+              <td>${formatIDR(subtotal)}</td>
             </tr>
           `;
         });
 
-        if (tableBody) tableBody.innerHTML = rowsHtml;
-
-        const totalPriceEl = document.getElementById('order-total-price');
-        const grandTotalEl = document.getElementById('order-grand-total');
-        const receivedEl = document.getElementById('order-received');
-        const returnEl = document.getElementById('order-return');
-
-        if (totalPriceEl) {
-          totalPriceEl.textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
-        }
-        if (grandTotalEl) {
-          grandTotalEl.textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
+        if (tableBody) {
+          tableBody.innerHTML = rowsHtml;
         }
 
-        // contoh simple: uang yang diterima = total + 2jt
-        const received = total + 2000000;
-        if (receivedEl) {
-          receivedEl.textContent = `IDR ${received.toLocaleString('id-ID')}.00`;
-        }
-        if (returnEl) {
-          const kembalian = received - total;
-          returnEl.textContent = `IDR ${kembalian.toLocaleString('id-ID')}.00`;
-        }
+        const totalFinal = totalFromCard || totalCalc;
+        const receivedFinal = receivedFromCard || totalFinal;
+        const returnFinal = returnFromCard || (receivedFinal - totalFinal);
 
-        // status badge di modal
-        const status = card.dataset.status;
-        const orderStatusBadge = document.querySelector('.order-status-badge');
+        if (totalPriceEl) totalPriceEl.textContent = formatIDR(totalFinal);
+        if (grandTotalEl) grandTotalEl.textContent = formatIDR(totalFinal);
+        if (receivedEl) receivedEl.textContent = formatIDR(receivedFinal);
+        if (returnEl) returnEl.textContent = formatIDR(returnFinal);
+
         if (orderStatusBadge) {
           orderStatusBadge.classList.remove('completed', 'cancelled', 'pending');
-
           if (status === 'cancelled') {
             orderStatusBadge.classList.add('cancelled');
             orderStatusBadge.textContent = '✕ Cancelled';
@@ -691,10 +830,10 @@
         orderModalOverlay.setAttribute('aria-hidden', 'false');
       }
 
-      function openReservationModalFromCard() {
+      function openReservationModalFromCard(card) {
         if (!reservationModalOverlay) return;
-        // Untuk sekarang datanya statis (sudah sesuai desain),
-        // tinggal buka modal saja.
+        currentReservationId = card.getAttribute('data-reservation-id');
+        // isi konten modal masih statis, kalau mau bisa di-dinamis-kan juga
         reservationModalOverlay.classList.add('open');
         reservationModalOverlay.setAttribute('aria-hidden', 'false');
       }
@@ -704,7 +843,7 @@
           const card = e.currentTarget.closest('.card');
           if (!card) return;
 
-          if (card.classList.contains('reservation-card') || card.dataset.status === 'reservation') {
+          if (card.classList.contains('reservation-card') || card.dataset.type === 'reservation') {
             openReservationModalFromCard(card);
           } else {
             openOrderModalFromCard(card);
@@ -716,12 +855,14 @@
         if (!orderModalOverlay) return;
         orderModalOverlay.classList.remove('open');
         orderModalOverlay.setAttribute('aria-hidden', 'true');
+        currentOrderId = null;
       }
 
       function closeReservationModal() {
         if (!reservationModalOverlay) return;
         reservationModalOverlay.classList.remove('open');
         reservationModalOverlay.setAttribute('aria-hidden', 'true');
+        currentReservationId = null;
       }
 
       if (orderModalClose && orderModalOverlay) {
@@ -748,7 +889,44 @@
           }
         }
       });
+
+      // === KIRIM FORM APPROVE / CANCEL ===
+      function submitStatus(action, type, id) {
+        if (!statusForm || !id) return;
+        statusActionInput.value = action;
+        statusTypeInput.value   = type;
+        statusIdInput.value     = id;
+        statusForm.submit();
+      }
+
+      if (orderCancelBtn) {
+        orderCancelBtn.addEventListener('click', () => {
+          if (!currentOrderId) return;
+          submitStatus('cancel', 'order', currentOrderId);
+        });
+      }
+      if (orderApproveBtn) {
+        orderApproveBtn.addEventListener('click', () => {
+          if (!currentOrderId) return;
+          submitStatus('approve', 'order', currentOrderId);
+        });
+      }
+      if (resCancelBtn) {
+        resCancelBtn.addEventListener('click', () => {
+          if (!currentReservationId) return;
+          submitStatus('cancel', 'reservation', currentReservationId);
+        });
+      }
+      if (resApproveBtn) {
+        resApproveBtn.addEventListener('click', () => {
+          if (!currentReservationId) return;
+          submitStatus('approve', 'reservation', currentReservationId);
+        });
+      }
     })();
   </script>
 </body>
 </html>
+<?php
+$mysqli->close();
+?>
