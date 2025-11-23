@@ -38,6 +38,7 @@ session_start();
           </button>
         </a>
 
+        <a href="../user_management/user_management.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="user-management" aria-label="User Management">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +48,9 @@ session_start();
             </span>
             <span class="label">User Management</span>
           </button>
+        </a>
 
+        <a href="../inventory/index.php" class="nav-link-wrapper">
           <button class="nav-item active" data-target="inventory" aria-label="Inventory">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -59,7 +62,9 @@ session_start();
             </span>
             <span class="label">Inventory</span>
           </button>
+        </a>
 
+        <a href="../reservation/index.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="reservation" aria-label="Reservation">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,7 +78,9 @@ session_start();
             </span>
             <span class="label">Reservation</span>
           </button>
-
+        </a>
+        
+        <a href="../transaction/index.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="transaction" aria-label="Transaction">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -83,6 +90,7 @@ session_start();
             </span>
             <span class="label">Transaction</span>
           </button>
+        </a>
 
           <button class="nav-item" data-target="activity-log" aria-label="Activity Log">
             <span class="icon-wrapper">
