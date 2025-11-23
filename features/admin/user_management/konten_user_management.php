@@ -14,7 +14,7 @@ $result = mysqli_query($conn, $query);
 
 
 <div class="container">
-    <h2>User Management</h2>
+
 
     <div class="filter-container">
         <a href="?filter=all" class="btn <?= $filter === 'all' ? 'active' : '' ?>">All Users</a>
