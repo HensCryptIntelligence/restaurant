@@ -11,38 +11,6 @@ if ($mysqli->connect_errno) {
     die('Koneksi database gagal: ' . $mysqli->connect_error);
 }
 
-/* =========================
-   HANDLE APPROVE / CANCEL
-   ========================= */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $type   = $_POST['type']   ?? '';
-    $id     = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-
-    if ($id > 0 && in_array($action, ['approve','cancel']) && in_array($type, ['order','reservation'])) {
-
-        $newStatus = ($action === 'approve') ? 'confirmed' : 'cancelled';
-
-        if ($type === 'order') {
-            // update status di transaction_order
-            $stmt = $mysqli->prepare("UPDATE transaction_order SET status = ? WHERE id_transaction_order = ?");
-        } else {
-            // update status di transaction_reservation
-            $stmt = $mysqli->prepare("UPDATE transaction_reservation SET status = ? WHERE id_transaction_reservation = ?");
-        }
-
-        if ($stmt) {
-            $stmt->bind_param("si", $newStatus, $id);
-            $stmt->execute();
-            $stmt->close();
-        }
-    }
-
-    // refresh halaman agar data terbaru langsung muncul
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
-}
-
 // ====== HELPER ======
 function getUserName($mysqli, $id_user) {
     $id_user = (int)$id_user;
@@ -301,16 +269,16 @@ if ($result = $mysqli->query($resSql)) {
           foreach ($orders as $order):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-              $statusDb = $order['trx_status']; // pending / confirmed / cancelled
+              $statusDb = strtolower($order['trx_status']); // pending / confirmed / cancelled
               if ($statusDb === 'confirmed') {
                   $statusClass = 'completed';
                   $statusLabel = '✓ Completed';
-              } elseif ($statusDb === 'pending') {
-                  $statusClass = 'pending';
-                  $statusLabel = '⏱ Pending';
-              } else {
+              } elseif ($statusDb === 'cancelled' || $statusDb === 'cancel' || $statusDb === 'canceled') {
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
+              } else {
+                  $statusClass = 'pending';
+                  $statusLabel = '⏱ Pending';
               }
 
               $ts = $order['created_at'] ? strtotime($order['created_at']) : time();
@@ -327,9 +295,9 @@ if ($result = $mysqli->query($resSql)) {
           ?>
           <article
             class="card"
-            data-status="<?php echo $statusClass; ?>"
             data-type="order"
-            data-order-id="<?php echo $order['id_transaction_order']; ?>"
+            data-order-id="<?php echo (int)$order['id_transaction_order']; ?>"
+            data-status="<?php echo $statusClass; ?>"
             data-total="<?php echo htmlspecialchars($totalAmount, ENT_QUOTES); ?>"
             data-received="<?php echo htmlspecialchars($received, ENT_QUOTES); ?>"
             data-return="<?php echo htmlspecialchars($returnAmount, ENT_QUOTES); ?>"
@@ -379,10 +347,10 @@ if ($result = $mysqli->query($resSql)) {
           foreach ($reservations as $reservation):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-              $statusTrx   = $reservation['trx_status'];          // pending / confirmed / cancelled
-              $statusRes   = $reservation['reservation_status'];  // pending/confirmed/seated/cancelled
+              $statusTrx   = strtolower($reservation['trx_status']);          // pending / confirmed / cancelled
+              $statusRes   = strtolower($reservation['reservation_status']);  // pending/confirmed/seated/cancelled
 
-              if ($statusTrx === 'cancelled' || $statusRes === 'cancelled') {
+              if ($statusRes === 'cancelled' || $statusTrx === 'cancelled' || $statusTrx === 'cancel' || $statusTrx === 'canceled') {
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
               } elseif ($statusTrx === 'confirmed' || $statusRes === 'confirmed' || $statusRes === 'seated') {
@@ -411,9 +379,9 @@ if ($result = $mysqli->query($resSql)) {
           ?>
           <article
             class="card reservation-card"
-            data-status="reservation" 
             data-type="reservation"
-            data-reservation-id="<?php echo $reservation['id_transaction_reservation']; ?>"
+            data-reservation-id="<?php echo (int)$reservation['id_transaction_reservation']; ?>"
+            data-status="reservation"
           >
             <div class="reservation-image-container">
               <img src="foto/download.jpg" alt="Table photo">
@@ -482,28 +450,28 @@ if ($result = $mysqli->query($resSql)) {
         <h3 class="section-title">Reservation Details</h3>
         <div class="detail-grid">
           <div class="detail-item">
-            <span class="detail-label">Room 1</span>
-            <span class="detail-value">01</span>
+            <span class="detail-label">Room</span>
+            <span class="detail-value room-number">01</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Seats</span>
-            <span class="detail-value">05 persons</span>
+            <span class="detail-value seats-value">05 persons</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Reservation Date</span>
-            <span class="detail-value">28. 03. 2024</span>
+            <span class="detail-value res-date">28. 03. 2024</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Reservation Time</span>
-            <span class="detail-value">03 : 00 PM</span>
+            <span class="detail-value res-time">03 : 00 PM</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Reservation End</span>
-            <span class="detail-value">05 : 00 PM</span>
+            <span class="detail-value res-end">05 : 00 PM</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Deposit Fee</span>
-            <span class="detail-value">IDR 1000000.00</span>
+            <span class="detail-value res-deposit">IDR 1000000.00</span>
           </div>
         </div>
 
@@ -511,25 +479,25 @@ if ($result = $mysqli->query($resSql)) {
         <div class="detail-grid">
           <div class="detail-item">
             <span class="detail-label">Reservation ID</span>
-            <span class="detail-value">#12354564</span>
+            <span class="detail-value res-id">#12354564</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Full Name</span>
-            <span class="detail-value">Watson Joyce</span>
+            <span class="detail-value res-customer">Watson Joyce</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Phone number</span>
-            <span class="detail-value">+1 (123) 123 4654</span>
+            <span class="detail-value res-phone">+1 (123) 123 4654</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Email Address</span>
-            <span class="detail-value">watsonjoyce112@gmail.com</span>
+            <span class="detail-value res-email">watsonjoyce112@gmail.com</span>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn-cancel">Cancel Reservation</button>
-          <button class="btn-approve">Approvement</button>
+          <button class="btn-cancel" id="btn-cancel-reservation-admin">Cancel Reservation</button>
+          <button class="btn-approve" id="btn-approve-reservation-admin">Approvement</button>
         </div>
       </div>
     </div>
@@ -608,18 +576,11 @@ if ($result = $mysqli->query($resSql)) {
       </div>
 
       <div class="modal-actions">
-        <button class="btn-cancel">Cancel Ordered</button>
-        <button class="btn-approve">Approvement</button>
+        <button class="btn-cancel" id="btn-cancel-order">Cancel Ordered</button>
+        <button class="btn-approve" id="btn-approve-order">Approvement</button>
       </div>
     </div>
   </div>
-
-  <!-- FORM UNTUK KIRIM APPROVE / CANCEL -->
-  <form id="status-form" method="post" style="display:none;">
-    <input type="hidden" name="action" id="status-action">
-    <input type="hidden" name="type" id="status-type">
-    <input type="hidden" name="id" id="status-id">
-  </form>
 
   <!-- JS LANGSUNG DI FILE PHP -->
   <script>
@@ -705,7 +666,7 @@ if ($result = $mysqli->query($resSql)) {
       filterCards('all', '');
     })();
 
-    /* VIEW ALL -> DETAIL ORDER & DETAIL RESERVATION + APPROVE/CANCEL */
+    /* VIEW ALL + APPROVE/CANCEL ACTIONS (ADMIN) */
     (function () {
       const orderModalOverlay = document.getElementById('order-modal-overlay');
       const orderModalClose = document.getElementById('order-modal-close');
@@ -726,15 +687,22 @@ if ($result = $mysqli->query($resSql)) {
       const returnEl = document.getElementById('order-return');
       const orderStatusBadge = document.querySelector('.order-status-badge');
 
-      const statusForm = document.getElementById('status-form');
-      const statusActionInput = document.getElementById('status-action');
-      const statusTypeInput = document.getElementById('status-type');
-      const statusIdInput = document.getElementById('status-id');
+      const reservationStatusBadge = document.querySelector('.reservation-status-badge');
 
-      const orderCancelBtn = document.querySelector('#order-modal-overlay .btn-cancel');
-      const orderApproveBtn = document.querySelector('#order-modal-overlay .btn-approve');
-      const resCancelBtn   = document.querySelector('#reservation-modal-overlay .btn-cancel');
-      const resApproveBtn  = document.querySelector('#reservation-modal-overlay .btn-approve');
+      // data di reservation modal
+      const resTableName = document.querySelector('.reservation-table-name');
+      const resRoomNumber = document.querySelector('.room-number');
+      const resSeatsValue = document.querySelector('.seats-value');
+      const resDate = document.querySelector('.res-date');
+      const resTime = document.querySelector('.res-time');
+      const resDeposit = document.querySelector('.res-deposit');
+      const resId = document.querySelector('.res-id');
+      const resCustomer = document.querySelector('.res-customer');
+
+      const btnApproveOrder = document.getElementById('btn-approve-order');
+      const btnCancelOrder = document.getElementById('btn-cancel-order');
+      const btnApproveReservation = document.getElementById('btn-approve-reservation-admin');
+      const btnCancelReservation = document.getElementById('btn-cancel-reservation-admin');
 
       let currentOrderId = null;
       let currentReservationId = null;
@@ -744,10 +712,97 @@ if ($result = $mysqli->query($resSql)) {
         return 'IDR ' + n.toLocaleString('id-ID') + '.00';
       }
 
+      function mapStatus(status) {
+        status = (status || '').toString().toLowerCase();
+        if (status === 'confirmed') {
+          return { cls: 'completed', label: '✓ Completed' };
+        }
+        if (status === 'cancelled' || status === 'cancel' || status === 'canceled') {
+          return { cls: 'cancelled', label: '✕ Cancelled' };
+        }
+        if (status === 'pending') {
+          return { cls: 'pending', label: '⏱ Pending' };
+        }
+        return { cls: 'pending', label: '⏱ Pending' };
+      }
+
+      function updateOrderModalStatus(statusDb) {
+        if (!orderStatusBadge) return;
+        const mapped = mapStatus(statusDb);
+        orderStatusBadge.classList.remove('completed', 'pending', 'cancelled');
+        orderStatusBadge.classList.add(mapped.cls);
+        orderStatusBadge.textContent = mapped.label;
+      }
+
+      function updateReservationModalStatus(statusDb) {
+        if (!reservationStatusBadge) return;
+        const mapped = mapStatus(statusDb);
+        reservationStatusBadge.classList.remove('completed', 'pending', 'cancelled');
+        reservationStatusBadge.classList.add(mapped.cls);
+        reservationStatusBadge.textContent = mapped.label;
+      }
+
+      function updateCardStatus(type, id, statusDb) {
+        let selector = '';
+        if (type === 'order') {
+          selector = '.card[data-type="order"][data-order-id="' + id + '"]';
+        } else if (type === 'reservation') {
+          selector = '.card[data-type="reservation"][data-reservation-id="' + id + '"]';
+        }
+        const card = document.querySelector(selector);
+        if (!card) return;
+        const mapped = mapStatus(statusDb);
+        const statusEl = card.querySelector('.status');
+        if (statusEl) {
+          statusEl.classList.remove('completed', 'pending', 'cancelled');
+          statusEl.classList.add(mapped.cls);
+          statusEl.textContent = mapped.label;
+        }
+        // untuk filter tab di admin, hanya order yang pakai data-status
+        if (type === 'order') {
+          card.dataset.status = mapped.cls;
+        }
+      }
+
+      function sendStatusUpdate(type, id, action) {
+        if (!id) return;
+        const params = new URLSearchParams();
+        params.append('type', type);
+        params.append('id', id);
+        params.append('action', action);
+
+        fetch('transaction_action.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params.toString()
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (!data || !data.success) {
+            alert(data && data.message ? data.message : 'Gagal update status');
+            return;
+          }
+          const statusDb = data.status;
+          if (data.type === 'order') {
+            updateOrderModalStatus(statusDb);
+            updateCardStatus('order', data.id, statusDb);
+          } else if (data.type === 'reservation') {
+            updateReservationModalStatus(statusDb);
+            updateCardStatus('reservation', data.id, statusDb);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Terjadi kesalahan koneksi ke server.');
+        });
+      }
+
       function openOrderModalFromCard(card) {
         if (!orderModalOverlay) return;
 
-        currentOrderId = card.getAttribute('data-order-id');
+        currentOrderId = card.dataset.orderId || null;
 
         const badge = card.querySelector('.badge')?.textContent.trim() || '';
         const name = card.querySelector('.name')?.textContent.trim() || '';
@@ -755,7 +810,8 @@ if ($result = $mysqli->query($resSql)) {
         const infoDivs = card.querySelectorAll('.row.info > div');
         const date = infoDivs[0]?.textContent.trim() || '';
         const time = infoDivs[1]?.textContent.trim() || '';
-        const status = card.dataset.status || 'completed';
+
+        const statusAttr = card.dataset.status || 'pending';
 
         const totalFromCard = parseFloat(card.getAttribute('data-total') || '0');
         const receivedFromCard = parseFloat(card.getAttribute('data-received') || '0');
@@ -812,18 +868,12 @@ if ($result = $mysqli->query($resSql)) {
         if (receivedEl) receivedEl.textContent = formatIDR(receivedFinal);
         if (returnEl) returnEl.textContent = formatIDR(returnFinal);
 
+        // status badge di modal
+        const mapped = mapStatus(statusAttr === 'completed' ? 'confirmed' : (statusAttr === 'cancelled' ? 'cancelled' : 'pending'));
         if (orderStatusBadge) {
-          orderStatusBadge.classList.remove('completed', 'cancelled', 'pending');
-          if (status === 'cancelled') {
-            orderStatusBadge.classList.add('cancelled');
-            orderStatusBadge.textContent = '✕ Cancelled';
-          } else if (status === 'pending') {
-            orderStatusBadge.classList.add('pending');
-            orderStatusBadge.textContent = '⏱ Pending';
-          } else {
-            orderStatusBadge.classList.add('completed');
-            orderStatusBadge.textContent = '✓ Completed';
-          }
+          orderStatusBadge.classList.remove('completed', 'pending', 'cancelled');
+          orderStatusBadge.classList.add(mapped.cls);
+          orderStatusBadge.textContent = mapped.label;
         }
 
         orderModalOverlay.classList.add('open');
@@ -832,8 +882,44 @@ if ($result = $mysqli->query($resSql)) {
 
       function openReservationModalFromCard(card) {
         if (!reservationModalOverlay) return;
-        currentReservationId = card.getAttribute('data-reservation-id');
-        // isi konten modal masih statis, kalau mau bisa di-dinamis-kan juga
+
+        currentReservationId = card.dataset.reservationId || null;
+
+        const tableName = card.querySelector('.overlay-meta .name')?.textContent.trim() || 'Table';
+        const reservationIdText = card.querySelector('.overlay-meta .order')?.textContent.trim() || 'Reservation ID #';
+        const statusElCard = card.querySelector('.status');
+        const datetime = card.querySelector('.reservation-datetime')?.textContent.trim() || '';
+        const infoItems = card.querySelectorAll('.info-item');
+        const seatsValue = infoItems[0]?.querySelector('.info-value')?.textContent.trim() || '0 persons';
+        const depositValue = infoItems[1]?.querySelector('.info-value')?.textContent.trim() || 'IDR 0';
+        const customerName = infoItems[2]?.querySelector('.info-value')?.textContent.trim() || 'Unknown';
+
+        if (resTableName) resTableName.textContent = tableName;
+        if (resId) resId.textContent = reservationIdText;
+        if (resCustomer) resCustomer.textContent = customerName;
+        if (resSeatsValue) resSeatsValue.textContent = seatsValue;
+        if (resDeposit) resDeposit.textContent = depositValue;
+
+        if (datetime.indexOf('•') > -1) {
+          const parts = datetime.split('•').map(s => s.trim());
+          if (resDate) resDate.textContent = parts[0];
+          if (resTime) resTime.textContent = parts[1];
+        } else {
+          if (resDate) resDate.textContent = datetime;
+          if (resTime) resTime.textContent = '';
+        }
+
+        if (statusElCard && reservationStatusBadge) {
+          const statusClasses = ['completed', 'pending', 'cancelled'];
+          reservationStatusBadge.classList.remove(...statusClasses);
+          statusClasses.forEach(cls => {
+            if (statusElCard.classList.contains(cls)) {
+              reservationStatusBadge.classList.add(cls);
+            }
+          });
+          reservationStatusBadge.textContent = statusElCard.textContent.trim();
+        }
+
         reservationModalOverlay.classList.add('open');
         reservationModalOverlay.setAttribute('aria-hidden', 'false');
       }
@@ -843,7 +929,7 @@ if ($result = $mysqli->query($resSql)) {
           const card = e.currentTarget.closest('.card');
           if (!card) return;
 
-          if (card.classList.contains('reservation-card') || card.dataset.type === 'reservation') {
+          if (card.classList.contains('reservation-card') || card.dataset.status === 'reservation') {
             openReservationModalFromCard(card);
           } else {
             openOrderModalFromCard(card);
@@ -855,14 +941,12 @@ if ($result = $mysqli->query($resSql)) {
         if (!orderModalOverlay) return;
         orderModalOverlay.classList.remove('open');
         orderModalOverlay.setAttribute('aria-hidden', 'true');
-        currentOrderId = null;
       }
 
       function closeReservationModal() {
         if (!reservationModalOverlay) return;
         reservationModalOverlay.classList.remove('open');
         reservationModalOverlay.setAttribute('aria-hidden', 'true');
-        currentReservationId = null;
       }
 
       if (orderModalClose && orderModalOverlay) {
@@ -890,39 +974,37 @@ if ($result = $mysqli->query($resSql)) {
         }
       });
 
-      // === KIRIM FORM APPROVE / CANCEL ===
-      function submitStatus(action, type, id) {
-        if (!statusForm || !id) return;
-        statusActionInput.value = action;
-        statusTypeInput.value   = type;
-        statusIdInput.value     = id;
-        statusForm.submit();
+      // ====== BUTTON APPROVE / CANCEL (ADMIN) ======
+      if (btnApproveOrder) {
+        btnApproveOrder.addEventListener('click', () => {
+          if (!currentOrderId) return;
+          sendStatusUpdate('order', currentOrderId, 'approve');
+        });
       }
 
-      if (orderCancelBtn) {
-        orderCancelBtn.addEventListener('click', () => {
+      if (btnCancelOrder) {
+        btnCancelOrder.addEventListener('click', () => {
           if (!currentOrderId) return;
-          submitStatus('cancel', 'order', currentOrderId);
+          if (!confirm('Yakin ingin membatalkan pesanan ini?')) return;
+          sendStatusUpdate('order', currentOrderId, 'cancel');
         });
       }
-      if (orderApproveBtn) {
-        orderApproveBtn.addEventListener('click', () => {
-          if (!currentOrderId) return;
-          submitStatus('approve', 'order', currentOrderId);
-        });
-      }
-      if (resCancelBtn) {
-        resCancelBtn.addEventListener('click', () => {
+
+      if (btnApproveReservation) {
+        btnApproveReservation.addEventListener('click', () => {
           if (!currentReservationId) return;
-          submitStatus('cancel', 'reservation', currentReservationId);
+          sendStatusUpdate('reservation', currentReservationId, 'approve');
         });
       }
-      if (resApproveBtn) {
-        resApproveBtn.addEventListener('click', () => {
+
+      if (btnCancelReservation) {
+        btnCancelReservation.addEventListener('click', () => {
           if (!currentReservationId) return;
-          submitStatus('approve', 'reservation', currentReservationId);
+          if (!confirm('Yakin ingin membatalkan reservasi ini?')) return;
+          sendStatusUpdate('reservation', currentReservationId, 'cancel');
         });
       }
+
     })();
   </script>
 </body>
