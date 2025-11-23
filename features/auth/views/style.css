@@ -19,7 +19,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 500px; /* sebelumnya 700px */
+    max-width: 80vh; /* sebelumnya 700px */
     padding: 45px;
     animation: fadeIn 0.5s ease-in;
 }
