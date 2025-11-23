@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bitehive Admin — Transaction UI</title>
 
+  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 
+  <!-- CSS -->
   <link rel="stylesheet" href="transaction_admin.css">
 </head>
 <body>
   <div class="app">
-    
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
@@ -102,8 +104,10 @@
       </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="main">
       <div class="main-inner">
+        <!-- TOPBAR -->
         <header class="topbar">
           <div class="title-wrap">
             <div class="chev">></div>
@@ -116,6 +120,7 @@
           </div>
         </header>
 
+        <!-- CONTROLS -->
         <section class="controls">
           <div class="tabs" role="tablist" aria-label="Filter transactions">
             <button class="tab active" data-filter="all">All</button>
@@ -143,7 +148,9 @@
           </div>
         </section>
 
+        <!-- CARDS -->
         <section id="cards" class="cards-grid">
+          <!-- ORDER CARD 1 -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">01</div>
@@ -173,6 +180,7 @@
             </div>
           </article>
 
+          <!-- ORDER CARD 2 -->
           <article class="card" data-status="cancelled">
             <div class="card-header">
               <div class="badge">02</div>
@@ -199,6 +207,7 @@
             </div>
           </article>
 
+          <!-- ORDER CARD 3 -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">03</div>
@@ -225,6 +234,7 @@
             </div>
           </article>
 
+          <!-- ORDER CARD 4 -->
           <article class="card" data-status="pending">
             <div class="card-header">
               <div class="badge">04</div>
@@ -251,6 +261,7 @@
             </div>
           </article>
 
+          <!-- ORDER CARD 5 -->
           <article class="card" data-status="completed">
             <div class="card-header">
               <div class="badge">05</div>
@@ -278,6 +289,7 @@
             </div>
           </article>
 
+          <!-- ORDER CARD 6 -->
           <article class="card" data-status="cancelled">
             <div class="card-header">
               <div class="badge">06</div>
@@ -304,6 +316,7 @@
             </div>
           </article>
 
+          <!-- RESERVATION CARD -->
           <article class="card reservation-card" data-status="reservation">
             <div class="reservation-image-container">
               <img src="foto/download.jpg" alt="Table photo">
@@ -317,7 +330,7 @@
             </div>
             <div class="reservation-body-new">
               <div class="status completed">✓ Completed</div>
-              <div class="reservation-datetime">28-03-2024 • 03:00 PM</div>
+              <div class="reservation-datetime">28-03-2024 • 03 : 00 PM</div>
               <div class="reservation-info-grid">
                 <div class="info-item">
                   <span class="info-label">Seats</span>
@@ -325,7 +338,7 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">Deposit Fee</span>
-                  <strong class="info-value">IDR 150.000</strong>
+                  <strong class="info-value">IDR 1.000.000,00</strong>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Customer</span>
@@ -335,12 +348,12 @@
               <button class="viewall view-reservation">View All</button>
             </div>
           </article>
-
         </section>
       </div>
     </main>
   </div>
 
+  <!-- RESERVATION DETAIL MODAL -->
   <div id="reservation-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal modal-reservation-detail" role="document">
       <header class="modal-header-simple">
@@ -349,28 +362,64 @@
         </div>
         <button id="reservation-modal-close" class="modal-close" aria-label="Close">&times;</button>
       </header>
+
       <div class="reservation-hero">
         <img src="foto/download.jpg" alt="Table" class="reservation-hero-img">
-        <div class="reservation-hero-overlay"><h2 class="reservation-table-name">Table # 01</h2></div>
+        <div class="reservation-hero-overlay">
+          <h2 class="reservation-table-name">Table # 01</h2>
+        </div>
         <div class="reservation-status-badge completed">✓ Completed</div>
       </div>
+
       <div class="reservation-modal-content">
         <h3 class="section-title">Reservation Details</h3>
         <div class="detail-grid">
-          <div class="detail-item"><span class="detail-label">Room 1</span><span class="detail-value">01</span></div>
-          <div class="detail-item"><span class="detail-label">Seats</span><span class="detail-value">05 persons</span></div>
-          <div class="detail-item"><span class="detail-label">Reservation Date</span><span class="detail-value">28. 03. 2024</span></div>
-          <div class="detail-item"><span class="detail-label">Reservation Time</span><span class="detail-value">03 : 00 PM</span></div>
-          <div class="detail-item"><span class="detail-label">Reservation End</span><span class="detail-value">05 : 00 PM</span></div>
-          <div class="detail-item"><span class="detail-label">Deposit Fee</span><span class="detail-value">IDR 1000000.00</span></div>
+          <div class="detail-item">
+            <span class="detail-label">Room 1</span>
+            <span class="detail-value">01</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Seats</span>
+            <span class="detail-value">05 persons</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation Date</span>
+            <span class="detail-value">28. 03. 2024</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation Time</span>
+            <span class="detail-value">03 : 00 PM</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation End</span>
+            <span class="detail-value">05 : 00 PM</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Deposit Fee</span>
+            <span class="detail-value">IDR 1000000.00</span>
+          </div>
         </div>
+
         <h3 class="section-title" style="margin-top: 24px;">Customer Details</h3>
         <div class="detail-grid">
-          <div class="detail-item"><span class="detail-label">Reservation ID</span><span class="detail-value">#12354564</span></div>
-          <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value">Watson Joyce</span></div>
-          <div class="detail-item"><span class="detail-label">Phone number</span><span class="detail-value">+1 (123) 123 4654</span></div>
-          <div class="detail-item"><span class="detail-label">Email Address</span><span class="detail-value">watsonjoyce112@gmail.com</span></div>
+          <div class="detail-item">
+            <span class="detail-label">Reservation ID</span>
+            <span class="detail-value">#12354564</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">Watson Joyce</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phone number</span>
+            <span class="detail-value">+1 (123) 123 4654</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">watsonjoyce112@gmail.com</span>
+          </div>
         </div>
+
         <div class="modal-actions">
           <button class="btn-cancel">Cancel Reservation</button>
           <button class="btn-approve">Approvement</button>
@@ -379,6 +428,7 @@
     </div>
   </div>
 
+  <!-- ORDER DETAIL MODAL -->
   <div id="order-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal modal-order-detail" role="document">
       <header class="modal-header-simple">
@@ -387,33 +437,69 @@
         </div>
         <button id="order-modal-close" class="modal-close" aria-label="Close">&times;</button>
       </header>
+
       <div class="order-header">
         <div class="order-header-left">
           <div class="badge-large pink">02</div>
-          <div><h3 class="order-customer-name">Watson Joyce</h3><p class="order-number">Order # 002</p></div>
+          <div>
+            <h3 class="order-customer-name">Watson Joyce</h3>
+            <p class="order-number">Order # 002</p>
+          </div>
         </div>
-        <div class="order-header-right"><span class="order-date">Wednesday, 28-08-2025</span><span class="order-time">04 : 34 PM</span></div>
+        <div class="order-header-right">
+          <span class="order-date">Wednesday, 28-08-2025</span>
+          <span class="order-time">04 : 34 PM</span>
+        </div>
         <div class="order-status-badge completed">✓ Completed</div>
       </div>
+
       <div class="order-table-container">
         <table class="order-table">
-          <thead><tr><th>Orders</th><th>Name of product</th><th>Quantity</th><th>Prices</th><th>Sub Total</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Orders</th>
+              <th>Name of product</th>
+              <th>Quantity</th>
+              <th>Prices</th>
+              <th>Sub Total</th>
+            </tr>
+          </thead>
           <tbody id="order-table-body">
-            <tr><td>#001</td><td>Gudang Garam Signature</td><td>10</td><td>IDR 330000.00</td><td>IDR 330000.00</td></tr>
+            <!-- Diisi dinamis oleh JS -->
           </tbody>
         </table>
       </div>
+
       <div class="order-summary">
         <div class="order-summary-icon">💵</div>
         <div class="order-summary-grid">
-          <div class="summary-row"><span>Total Prices</span><strong id="order-total-price">IDR 33000000.00</strong></div>
-          <div class="summary-row"><span>Disc. 0%</span><strong>IDR 0</strong></div>
-          <div class="summary-row"><span>Tax 0%</span><strong>IDR 0</strong></div>
-          <div class="summary-row"><span>Total</span><strong id="order-grand-total">IDR 33000000.00</strong></div>
-          <div class="summary-row"><span>Received</span><strong id="order-received">IDR 35000000.00</strong></div>
-          <div class="summary-row"><span>Return</span><strong id="order-return">IDR 2000000.00</strong></div>
+          <div class="summary-row">
+            <span>Total Prices</span>
+            <strong id="order-total-price">IDR 0.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Disc. 0%</span>
+            <strong>IDR 0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Tax 0%</span>
+            <strong>IDR 0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total</span>
+            <strong id="order-grand-total">IDR 0.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Received</span>
+            <strong id="order-received">IDR 0.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Return</span>
+            <strong id="order-return">IDR 0.00</strong>
+          </div>
         </div>
       </div>
+
       <div class="modal-actions">
         <button class="btn-cancel">Cancel Ordered</button>
         <button class="btn-approve">Approvement</button>
@@ -421,22 +507,31 @@
     </div>
   </div>
 
+  <!-- SCRIPT -->
   <script>
     /* NAV ACTIVE */
     (function () {
       const navItems = document.querySelectorAll('.nav-item');
+      const titleEl = document.querySelector('.title');
+
       navItems.forEach(item => {
         item.addEventListener('click', () => {
           navItems.forEach(i => i.classList.remove('active'));
           item.classList.add('active');
-          navItems.forEach(i => i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false'));
+
+          navItems.forEach(i => {
+            i.setAttribute('aria-current', i.classList.contains('active') ? 'page' : 'false');
+          });
+
           const label = item.querySelector('.label')?.textContent || '';
-          document.querySelector('.title').textContent = label;
+          if (label && titleEl) {
+            titleEl.textContent = label;
+          }
         });
       });
     })();
 
-    /* LIMIT ITEMS TO 3 */
+    /* LIMIT ITEMS TO 3 (show 3 pertama, sisanya di View All) */
     (function () {
       const allCards = document.querySelectorAll('.card:not(.reservation-card)');
       allCards.forEach(card => {
@@ -453,118 +548,204 @@
       const cards = document.querySelectorAll('.card');
       const search = document.getElementById('search');
 
-      tabs.forEach(t => t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        filterCards(t.dataset.filter, search.value);
-      }));
-
-      search.addEventListener('input', (e) => {
-        const activeTab = document.querySelector('.tab.active').dataset.filter;
-        filterCards(activeTab, e.target.value);
-      });
-
       function filterCards(filter, q) {
         q = (q || '').toLowerCase().trim();
+
         cards.forEach(card => {
-          const status = card.dataset.status;
+          const status = card.dataset.status || '';
           const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
           const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
-          const matchesFilter = (filter === 'all') || (filter === status);
-          const matchesQuery = !q || name.includes(q) || order.includes(q) || card.textContent.toLowerCase().includes(q);
-          card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
+
+          const matchesFilter =
+            filter === 'all' || filter === status; // reservation hanya muncul saat ALL
+
+          const matchesQuery =
+            !q ||
+            name.includes(q) ||
+            order.includes(q) ||
+            card.textContent.toLowerCase().includes(q);
+
+          card.style.display = matchesFilter && matchesQuery ? '' : 'none';
         });
       }
+
+      tabs.forEach(t => {
+        t.addEventListener('click', () => {
+          tabs.forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          filterCards(t.dataset.filter, search.value);
+        });
+      });
+
+      if (search) {
+        search.addEventListener('input', (e) => {
+          const activeTab = document.querySelector('.tab.active')?.dataset.filter || 'all';
+          filterCards(activeTab, e.target.value);
+        });
+      }
+
       filterCards('all', '');
     })();
 
-    /* VIEW ALL MODAL LOGIC */
+    /* VIEW ALL -> DETAIL ORDER & DETAIL RESERVATION */
     (function () {
-      const viewBtns = document.querySelectorAll('.viewall');
       const orderModalOverlay = document.getElementById('order-modal-overlay');
       const orderModalClose = document.getElementById('order-modal-close');
       const reservationModalOverlay = document.getElementById('reservation-modal-overlay');
       const reservationModalClose = document.getElementById('reservation-modal-close');
+      const viewBtns = document.querySelectorAll('.viewall');
+
+      function openOrderModalFromCard(card) {
+        if (!orderModalOverlay) return;
+
+        const badge = card.querySelector('.badge')?.textContent.trim() || '';
+        const name = card.querySelector('.name')?.textContent.trim() || '';
+        const order = card.querySelector('.order')?.textContent.trim() || '';
+        const infoDivs = card.querySelectorAll('.row.info > div');
+        const date = infoDivs[0]?.textContent.trim() || '';
+        const time = infoDivs[1]?.textContent.trim() || '';
+
+        const badgeLarge = document.querySelector('.badge-large.pink');
+        const orderCustomerName = document.querySelector('.order-customer-name');
+        const orderNumber = document.querySelector('.order-number');
+        const orderDate = document.querySelector('.order-date');
+        const orderTime = document.querySelector('.order-time');
+
+        if (badgeLarge) badgeLarge.textContent = badge;
+        if (orderCustomerName) orderCustomerName.textContent = name;
+        if (orderNumber) orderNumber.textContent = order;
+        if (orderDate) orderDate.textContent = date;
+        if (orderTime) orderTime.textContent = time;
+
+        const itemNodes = Array.from(card.querySelectorAll('.items .item'));
+        const tableBody = document.getElementById('order-table-body');
+
+        let rowsHtml = '';
+        let total = 0;
+        const defaultPrice = 330000; // harga default per item, bisa diubah nanti
+
+        itemNodes.forEach((item, idx) => {
+          const productText = item.querySelector('.left')?.textContent.trim() || '';
+          const qtyText = item.querySelector('.right')?.textContent.trim() || '1';
+          const qty = parseInt(qtyText, 10) || 0;
+
+          const productName = productText.replace(/^#\s*\d+\s*/, '');
+          const price = defaultPrice;
+          const subtotal = price * qty;
+          total += subtotal;
+
+          rowsHtml += `
+            <tr>
+              <td>#${String(idx + 1).padStart(3, '0')}</td>
+              <td>${productName}</td>
+              <td>${qty}</td>
+              <td>IDR ${price.toLocaleString('id-ID')}.00</td>
+              <td>IDR ${subtotal.toLocaleString('id-ID')}.00</td>
+            </tr>
+          `;
+        });
+
+        if (tableBody) tableBody.innerHTML = rowsHtml;
+
+        const totalPriceEl = document.getElementById('order-total-price');
+        const grandTotalEl = document.getElementById('order-grand-total');
+        const receivedEl = document.getElementById('order-received');
+        const returnEl = document.getElementById('order-return');
+
+        if (totalPriceEl) {
+          totalPriceEl.textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
+        }
+        if (grandTotalEl) {
+          grandTotalEl.textContent = `IDR ${total.toLocaleString('id-ID')}.00`;
+        }
+
+        // contoh simple: uang yang diterima = total + 2jt
+        const received = total + 2000000;
+        if (receivedEl) {
+          receivedEl.textContent = `IDR ${received.toLocaleString('id-ID')}.00`;
+        }
+        if (returnEl) {
+          const kembalian = received - total;
+          returnEl.textContent = `IDR ${kembalian.toLocaleString('id-ID')}.00`;
+        }
+
+        // status badge di modal
+        const status = card.dataset.status;
+        const orderStatusBadge = document.querySelector('.order-status-badge');
+        if (orderStatusBadge) {
+          orderStatusBadge.classList.remove('completed', 'cancelled', 'pending');
+
+          if (status === 'cancelled') {
+            orderStatusBadge.classList.add('cancelled');
+            orderStatusBadge.textContent = '✕ Cancelled';
+          } else if (status === 'pending') {
+            orderStatusBadge.classList.add('pending');
+            orderStatusBadge.textContent = '⏱ Pending';
+          } else {
+            orderStatusBadge.classList.add('completed');
+            orderStatusBadge.textContent = '✓ Completed';
+          }
+        }
+
+        orderModalOverlay.classList.add('open');
+        orderModalOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function openReservationModalFromCard() {
+        if (!reservationModalOverlay) return;
+        // Untuk sekarang datanya statis (sudah sesuai desain),
+        // tinggal buka modal saja.
+        reservationModalOverlay.classList.add('open');
+        reservationModalOverlay.setAttribute('aria-hidden', 'false');
+      }
 
       viewBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const card = e.target.closest('.card');
+          const card = e.currentTarget.closest('.card');
           if (!card) return;
-          const status = card.dataset.status;
-          
-          if (status === 'reservation' || card.classList.contains('reservation-card')) {
-            reservationModalOverlay.setAttribute('aria-hidden', 'false');
-            reservationModalOverlay.classList.add('open');
+
+          if (card.classList.contains('reservation-card') || card.dataset.status === 'reservation') {
+            openReservationModalFromCard(card);
           } else {
-            const badge = card.querySelector('.badge')?.textContent.trim() || '';
-            const name = card.querySelector('.name')?.textContent.trim() || '';
-            const order = card.querySelector('.order')?.textContent.trim() || '';
-            const dateEl = card.querySelector('.row.info > div');
-            const date = dateEl?.textContent.trim() || '';
-            
-            document.querySelector('.badge-large.pink').textContent = badge;
-            document.querySelector('.order-customer-name').textContent = name;
-            document.querySelector('.order-number').textContent = order;
-            document.querySelector('.order-date').textContent = date;
-            
-            const itemNodes = Array.from(card.querySelectorAll('.item'));
-            const tableBody = document.getElementById('order-table-body');
-            let html = '';
-            let total = 0;
-            itemNodes.forEach((item, idx) => {
-              const productText = item.querySelector('.left')?.textContent.trim() || '';
-              const qtyText = item.querySelector('.right')?.textContent.trim() || '1';
-              const qty = parseInt(qtyText, 10);
-              const price = 330000;
-              const subtotal = price * qty;
-              total += subtotal;
-              html += <tr><td>#${String(idx + 1).padStart(3, '0')}</td><td>${productText.replace(/^#\s*\d+\s*/, '')}</td><td>${qty}</td><td>IDR ${price.toLocaleString('id-ID')}.00</td><td>IDR ${subtotal.toLocaleString('id-ID')}.00</td></tr>;
-            });
-            tableBody.innerHTML = html;
-            document.getElementById('order-total-price').textContent = IDR ${total.toLocaleString('id-ID')}.00;
-            document.getElementById('order-grand-total').textContent = IDR ${total.toLocaleString('id-ID')}.00;
-            
-            const orderStatusBadge = document.querySelector('.order-status-badge');
-            orderStatusBadge.classList.remove('completed', 'cancelled', 'pending');
-            if (status === 'cancelled') {
-              orderStatusBadge.classList.add('cancelled');
-              orderStatusBadge.textContent = '✕ Cancelled';
-              orderStatusBadge.style.background = 'rgba(255, 70, 70, 0.15)';
-              orderStatusBadge.style.color = 'var(--danger)';
-            } else if (status === 'pending') {
-              orderStatusBadge.classList.add('pending');
-              orderStatusBadge.textContent = '⏱ Pending';
-              orderStatusBadge.style.background = 'rgba(255, 165, 0, 0.15)';
-              orderStatusBadge.style.color = 'var(--warning)';
-            } else {
-              orderStatusBadge.classList.add('completed');
-              orderStatusBadge.textContent = '✓ Completed';
-              orderStatusBadge.style.background = 'rgba(30, 144, 255, 0.15)';
-              orderStatusBadge.style.color = 'var(--icon-blue)';
-            }
-            orderModalOverlay.setAttribute('aria-hidden', 'false');
-            orderModalOverlay.classList.add('open');
+            openOrderModalFromCard(card);
           }
         });
       });
 
       function closeOrderModal() {
+        if (!orderModalOverlay) return;
         orderModalOverlay.classList.remove('open');
         orderModalOverlay.setAttribute('aria-hidden', 'true');
       }
+
       function closeReservationModal() {
+        if (!reservationModalOverlay) return;
         reservationModalOverlay.classList.remove('open');
         reservationModalOverlay.setAttribute('aria-hidden', 'true');
       }
 
-      orderModalClose.addEventListener('click', closeOrderModal);
-      orderModalOverlay.addEventListener('click', (e) => { if (e.target === orderModalOverlay) closeOrderModal(); });
-      reservationModalClose.addEventListener('click', closeReservationModal);
-      reservationModalOverlay.addEventListener('click', (e) => { if (e.target === reservationModalOverlay) closeReservationModal(); });
-      document.addEventListener('keydown', (e) => { 
+      if (orderModalClose && orderModalOverlay) {
+        orderModalClose.addEventListener('click', closeOrderModal);
+        orderModalOverlay.addEventListener('click', (e) => {
+          if (e.target === orderModalOverlay) closeOrderModal();
+        });
+      }
+
+      if (reservationModalClose && reservationModalOverlay) {
+        reservationModalClose.addEventListener('click', closeReservationModal);
+        reservationModalOverlay.addEventListener('click', (e) => {
+          if (e.target === reservationModalOverlay) closeReservationModal();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          if (orderModalOverlay.classList.contains('open')) closeOrderModal();
-          if (reservationModalOverlay.classList.contains('open')) closeReservationModal();
+          if (orderModalOverlay && orderModalOverlay.classList.contains('open')) {
+            closeOrderModal();
+          }
+          if (reservationModalOverlay && reservationModalOverlay.classList.contains('open')) {
+            closeReservationModal();
+          }
         }
       });
     })();
