@@ -27,7 +27,11 @@
                 <input type="text" name="fullname" class="form-control" placeholder="Enter your fullname" required>
             </div>
             <button type="submit" class="btn-login-forgot">Reset Password</button>
+
+            <!-- Tombol Back -->
+            <a href="login.php" class="btn-back">Back to Login</a>
         </form>
+                
         
         <div class="footer">
             <p>&copy; 2025 Bitehive. All rights reserved.</p>
