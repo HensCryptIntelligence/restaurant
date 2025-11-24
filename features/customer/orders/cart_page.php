@@ -579,7 +579,7 @@ $userData = mysqli_fetch_assoc($userResult);
                                     <div class="action-buttons">
                                         <form method="POST" action="" style="display: inline;">
                                             <input type="hidden" name="id_cart_order" value="<?php echo $item['id_cart_order']; ?>">
-                                            <button type="submit" name="delete_item" class="delete-btn" onclick="return confirm('Remove this item from cart?')">🗑</button>
+                                            <button type="submit" name="delete_item" class="delete-btn" onclick="return confirm('Remove this item from cart?')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                                         </form>
                                     </div>
                                 </td>
@@ -592,7 +592,7 @@ $userData = mysqli_fetch_assoc($userResult);
             <!-- Summary Section -->
             <div class="summary-section">
                 <div class="summary-left">
-                    <div class="summary-icon">🛒</div>
+                    <div class="summary-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></div>
                     <div class="summary-details">
                         <div class="summary-item">
                             <span class="summary-label">Total Prices</span>

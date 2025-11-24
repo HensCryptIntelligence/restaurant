@@ -457,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['process_payment'])) {
         <!-- Header Bar -->
         <div class="header-bar">
             <h1 class="header-title">Payment</h1>
-            <a href="cart_page.php" class="back-btn">← Back to Cart</a>
+            <a href="cart_page.php" class="back-btn">Back to Cart</a>
         </div>
 
         <!-- Payment Card -->
