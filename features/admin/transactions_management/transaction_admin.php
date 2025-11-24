@@ -145,7 +145,7 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Dashboard</span>
           </button>
-        </a>  
+        </a>
 
         <a href="../user_management/user_management.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="user" aria-label="User">
@@ -171,21 +171,23 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Inventory</span>
           </button>
-        </a> 
+        </a>
 
-          <button class="nav-item" data-target="reservation" aria-label="Reservation">
-            <span class="icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 14v2.2l1.6 1"/>
-                <path d="M16 2v4"/>
-                <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/>
-                <path d="M3 10h5"/>
-                <path d="M8 2v4"/>
-                <circle cx="16" cy="16" r="6"/>
-              </svg>
-            </span>
-            <span class="label">Reservation</span>
-          </button>
+        <a href="../reservation_management/admin_reservation.php" class="nav-link-wrapper">
+  <button class="nav-item" data-target="reservation" aria-label="Reservation">
+    <span class="icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 14v2.2l1.6 1"/>
+        <path d="M16 2v4"/>
+        <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/>
+        <path d="M3 10h5"/>
+        <path d="M8 2v4"/>
+        <circle cx="16" cy="16" r="6"/>
+      </svg>
+    </span>
+    <span class="label">Reservation</span>
+  </button>
+</a>
 
         <a href="../transactions_management/transaction_admin.php" class="nav-link-wrapper">
           <button class="nav-item active" data-target="transaction" aria-label="Transaction">

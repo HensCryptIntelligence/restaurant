@@ -86,6 +86,15 @@ $stmt->closeCursor();
           </button>
         </a>  
 
+        <a href="../orders/index.php" class="nav-link-wrapper">
+          <button class="nav-item active" data-target="order" aria-label="Order">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            </span>
+            <span class="label">Order</span>
+          </button>
+        </a>
+
         <a href="../transactions/transaction1.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="transaction" aria-label="Transaction">
             <span class="icon-wrapper">
@@ -97,6 +106,19 @@ $stmt->closeCursor();
             <span class="label">Transaction</span>
           </button>
         </a>
+
+        <button class="nav-item" data-target="activity-log" aria-label="Activity Log">
+  <span class="icon-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 14v2.2l1.6 1"/>
+      <path d="M16 4h2a2 2 0 0 1 2 2v.832"/>
+      <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/>
+      <circle cx="16" cy="16" r="6"/>
+      <rect x="8" y="2" width="8" height="4" rx="1"/>
+    </svg>
+  </span>
+  <span class="label">Activity Log</span>
+</button>
           
         </nav>
       </div>

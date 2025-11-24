@@ -1,0 +1,199 @@
+/* =========================================
+   1. STYLE UTAMA (Sama persis dengan Transaction)
+   ========================================= */
+:root {
+  /* --- LAYOUT GLOBAL --- */
+  --sidebar-w: 260px;
+  --bg: #0b0c0d;
+  --panel: #161818;
+  --muted: #9aa0a2;
+  --accent: #17b79a;
+  --card: #222426;
+  --text: #e6f0ef;
+  --sub: #aeb7b6;
+  --radius: 16px;
+  --icon-blue: #1e90ff;
+  --danger: #ff4747;
+  
+  /* --- UKURAN GRID RESERVASI (UBAH DISINI) --- */
+  --grid-label-width: 100px;  /* Lebar kolom Nama Meja (Kiri) */
+  --grid-slot-width: 110px;   /* Lebar per kolom Jam */
+  --grid-row-height: 80px;    /* Tinggi baris meja */
+  --grid-header-height: 50px; /* Tinggi header jam */
+  
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-size: 15px;
+}
+
+/* RESET */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: linear-gradient(180deg, #0b0c0d 0%, #0c0d0e 100%); color: var(--text); -webkit-font-smoothing: antialiased; overflow: hidden; }
+.app { min-height: 100vh; display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w);
+  background: linear-gradient(180deg, rgba(26,29,29,.98), rgba(20,22,22,.98));
+  border-radius: 0 18px 18px 0; padding: 22px; display: flex; flex-direction: column; justify-content: space-between;
+  box-shadow: 4px 0 24px rgba(0,0,0,.6); border-right: 1px solid rgba(255,255,255,.03); z-index: 50;
+}
+.brand { font-weight:700; color:var(--accent); font-size:20px; padding-bottom:8px; }
+
+/* NAVIGATION */
+.nav { display:flex; flex-direction:column; gap:12px; margin-top: 18px; }
+
+.nav-item { 
+  display:flex; align-items:center; gap:12px; padding:10px; border-radius:12px; 
+  background:transparent; color:var(--sub); border:0; cursor:pointer; width:100%; 
+  transition: background .18s, color .18s, transform .12s; text-decoration: none;
+}
+.nav-item:hover { background: rgba(30,144,255,.06); color:#dceeff; }
+
+/* ICON MASKING (PNG) */
+.icon { 
+  width:48px; height:48px; border-radius:10px; display:inline-block; 
+  background-color: rgba(30,144,255,.08); 
+  -webkit-mask-position:center; mask-position:center; 
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; 
+  -webkit-mask-size:60% 60%; mask-size:60% 60%; 
+  transition: background-color .18s, -webkit-mask-size .18s; 
+}
+.nav-item .label { font-weight:600; font-size:15px; color:var(--sub); transition: color .18s; }
+
+/* ACTIVE STATE */
+.nav-item.active { background: linear-gradient(180deg, rgba(30,144,255,.12), rgba(30,144,255,.04)); color:var(--icon-blue); box-shadow:0 8px 20px rgba(30,144,255,.06); }
+.nav-item.active .icon { background-color: var(--icon-blue); -webkit-mask-size:72% 72%; mask-size:72% 72%; }
+.nav-item.active .label { color:var(--icon-blue); }
+
+.sidebar-bottom { display:flex; align-items:center; gap:12px; }
+.logout { width:48px; height:48px; border-radius:50%; border:1px solid rgba(255,255,255,.06); background-color: rgba(30,144,255,.06); cursor:pointer; -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:60% 60%; mask-size:60% 60%; transition: background-color .16s, transform .12s; }
+.logout:hover { background-color: var(--icon-blue); transform: translateY(-2px); }
+
+/* MAIN CONTENT */
+.main { margin-left: var(--sidebar-w); padding: 20px; flex: 1; min-height: 100vh; overflow: hidden; }
+.main-inner { height: 100vh; overflow-y: auto; padding-right: 12px; scrollbar-width: none; padding-bottom: 40px; }
+.main-inner::-webkit-scrollbar { display: none; }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:8px 6px; margin-bottom:12px; position:sticky; top:0; backdrop-filter: blur(4px); z-index:20; }
+.title-wrap { display:flex; align-items:center; gap:12px; }
+.chev { background: rgba(255,255,255,.02); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--sub); }
+.title { font-size:22px; color:var(--text); }
+.user { display:flex; align-items:center; gap:12px; color:var(--sub); }
+.avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid rgba(23,201,176,.12); }
+
+.controls { display:flex; justify-content:space-between; align-items:center; padding:8px 6px; margin-bottom:16px; flex-wrap: wrap; gap: 12px; }
+.tabs { display:flex; gap:12px; flex-wrap:wrap; }
+.tab { padding:10px 16px; border-radius:10px; background:transparent; border:0; cursor:pointer; color:var(--sub); font-weight: 600; transition: all 0.3s; }
+.tab.active { background: var(--accent); color:#06221e; }
+
+.right-controls { display:flex; gap:12px; align-items:center; }
+.date-select { padding:10px 16px; background: var(--panel); border:1px solid rgba(255,255,255,.03); border-radius:10px; color:var(--text); cursor: pointer; font-weight: 600; }
+.btn-add { padding:10px 20px; background: var(--accent); border:0; border-radius:10px; color:#06221e; font-weight:700; cursor:pointer; transition: all 0.3s; }
+.btn-add:hover { background: #15a887; }
+
+/* =========================================
+   2. GRID RESERVATION STYLES (Fixed Sizes)
+   ========================================= */
+.table-container { 
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.2)); 
+    border-radius:14px; 
+    border:1px solid rgba(255,255,255,.03); 
+    box-shadow:0 12px 30px rgba(0,0,0,.6); 
+    display:flex; flex-direction:column;
+    position: relative;
+    overflow: hidden; 
+}
+
+.grid-scroll-area {
+    overflow: auto; 
+    max-height: calc(100vh - 240px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) rgba(0,0,0,.2);
+}
+
+.grid-scroll-area::-webkit-scrollbar { width: 8px; height: 8px; }
+.grid-scroll-area::-webkit-scrollbar-track { background: #0b0c0d; }
+.grid-scroll-area::-webkit-scrollbar-thumb { background: #2c2f33; border-radius: 4px; }
+
+/* GRID DEFINITION - MENGGUNAKAN VARIABLE */
+.grid-table {
+    display: grid;
+    /* 1 Kolom Label + 13 Kolom Jam */
+    grid-template-columns: var(--grid-label-width) repeat(13, var(--grid-slot-width)); 
+    min-width: max-content;
+}
+
+/* Header Row */
+.header-row { display: contents; }
+
+.header-cell {
+    background: #161818;
+    height: var(--grid-header-height); /* Tinggi header */
+    padding: 0 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    border-right: 1px solid rgba(255,255,255,.03);
+    position: sticky; top: 0; z-index: 10;
+}
+
+/* Corner Cell (Sticky Top & Left) */
+.header-cell.corner {
+    position: sticky; left: 0; top: 0; z-index: 20;
+    border-right: 1px solid rgba(255,255,255,.08);
+    width: var(--grid-label-width);
+}
+
+/* Body Cells */
+.row-label {
+    position: sticky; left: 0; z-index: 5;
+    background: #1a1d1e;
+    width: var(--grid-label-width);
+    height: var(--grid-row-height); /* Tinggi baris */
+    padding-left: 24px;
+    font-weight: 700; color: var(--text);
+    border-right: 1px solid rgba(255,255,255,.08);
+    border-bottom: 1px solid rgba(255,255,255,.03);
+    display: flex; align-items: center;
+}
+
+.cell {
+    height: var(--grid-row-height); /* Tinggi baris */
+    padding: 6px; 
+    border-right: 1px solid rgba(255,255,255,.03);
+    border-bottom: 1px solid rgba(255,255,255,.03);
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Reservation Block */
+.reservation-block {
+    background: linear-gradient(135deg, var(--accent), #15a887);
+    color: #04221e; width: 100%; height: 100%; border-radius: 8px;
+    cursor: pointer; padding: 4px 8px;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.reservation-block:hover { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(23,183,154,0.4); }
+.reservation-name { font-size: 12px; font-weight: 700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reservation-info { font-size: 11px; opacity: 0.9; font-weight: 600; }
+
+/* === 3. MODAL DETAIL === */
+.modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.7); z-index:200; opacity:0; pointer-events:none; transition: opacity .2s ease; backdrop-filter: blur(2px); }
+.modal-overlay.open { opacity:1; pointer-events:auto; }
+.modal { width: min(500px, 90vw); background: linear-gradient(180deg, #1a1c1d, #121212); border-radius:16px; padding:24px; border:1px solid rgba(255,255,255,.05); box-shadow:0 30px 80px rgba(0,0,0,.8); transform: translateY(20px); transition: transform .3s; }
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.modal-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.modal-close { background: transparent; border: 0; color: var(--sub); font-size:24px; cursor:pointer; line-height:1; padding:4px; }
+
+.detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.03); color: var(--sub); font-size: 14px; }
+.detail-row:last-of-type { border-bottom: none; }
+.detail-label { color: var(--muted); font-weight: 500; }
+.detail-value { color: var(--text); font-weight: 600; }
+
+.modal-footer { margin-top: 24px; display: flex; gap: 12px; }
+.btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 0; font-size: 14px; }
+.btn-primary { background: var(--accent); color: #04221e; }
+.btn-secondary { background: rgba(255,255,255,.05); color: var(--sub); }
+.btn-secondary:hover { background: rgba(255,255,255,.1); color: var(--text); }

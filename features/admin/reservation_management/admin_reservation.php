@@ -444,8 +444,8 @@ function getReservation($table, $hour, $data) {
         .nav-item:hover {
             background: rgba(250, 193, 217, 0.08);
             color: var(--pink-light);
-            transform: translateX(4px);
         }
+
         .nav-item.active {
             background: linear-gradient(135deg, rgba(250, 193, 217, 0.15), rgba(250, 193, 217, 0.08));
             color: var(--pink-primary);
@@ -892,15 +892,17 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">Dashboard</span>
                     </a>
-                    <a href="../user_management/index.php" class="nav-item">
-                        <span class="icon-wrapper">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
-                            </svg>
-                        </span>
-                        <span class="label">User Management</span>
-                    </a>
+                          <a href="../user_management/user_management.php" class="nav-link-wrapper">
+          <button class="nav-item" data-target="user-management" aria-label="User Management">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <span class="label">User Management</span>
+          </button>
+      </a>
                     <a href="../inventory/index.php" class="nav-item">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -934,6 +936,19 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">Transaction</span>
                     </a>
+
+                    <button class="nav-item" data-target="activity-log" aria-label="Activity Log">
+  <span class="icon-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 14v2.2l1.6 1"/>
+      <path d="M16 4h2a2 2 0 0 1 2 2v.832"/>
+      <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/>
+      <circle cx="16" cy="16" r="6"/>
+      <rect x="8" y="2" width="8" height="4" rx="1"/>
+    </svg>
+  </span>
+  <span class="label">Activity Log</span>
+</button>
                 </nav>
             </div>
             <div class="sidebar-bottom">
