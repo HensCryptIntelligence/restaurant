@@ -188,12 +188,13 @@
     // Logout functionality
     logoutBtn.addEventListener('click', function() {
       if (confirm('Are you sure you want to log out?')) {
+
         // Clear localStorage
         localStorage.removeItem('sidebarOpen');
         localStorage.removeItem('activeMenu');
-        // Redirect to login page or perform logout action
-        console.log('Logging out...');
-        // window.location.href = '/login';
+
+        // Redirect to logout process
+        window.location.href = "../../auth/controllers/logout.php";
       }
     });
 
