@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     try {
         switch ($_POST['action']) {
             case 'fetch_reservations':
-                // Fetch semua reservations untuk tanggal tertentu
                 $selectedDate = $_POST['date'] ?? date('Y-m-d');
                 $stmt = $pdo->prepare("
                     SELECT r.*, rr.seats as table_capacity, 
@@ -61,15 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ");
                 $stmt->execute(['date' => $selectedDate]);
                 $reservations = $stmt->fetchAll();
-                $stmt->closeCursor(); // FIX: Close cursor after fetch
-                // Transform data untuk frontend
+                $stmt->closeCursor();
                 $transformedData = [];
                 foreach ($reservations as $res) {
                     $transformedData[] = [
                         'id' => $res['id_reservation'],
                         'table' => $res['id_reservation_room'],
                         'hour' => (int)date('H', strtotime($res['reservation_start'])),
-                        'name' => $res['display_name'], // MENGGUNAKAN display_name
+                        'name' => $res['display_name'],
                         'phone' => $res['phone_number'],
                         'email' => $res['email_address'],
                         'guests' => $res['seats'],
@@ -82,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $response['timestamp'] = date('Y-m-d H:i:s');
                 break;
             case 'add':
-                // Validasi input
                 if (empty($_POST['table']) || empty($_POST['hour']) || empty($_POST['name']) || 
                     empty($_POST['phone']) || empty($_POST['guests']) || empty($_POST['date'])) {
                     throw new Exception('Semua field wajib diisi!');
@@ -97,18 +94,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if ($guests <= 0) {
                     throw new Exception('Jumlah tamu minimal 1!');
                 }
-                // VALIDASI: Cek kapasitas meja
                 $stmt = $pdo->prepare("SELECT seats FROM reservation_rooms WHERE id_reservation_room = :table");
                 $stmt->execute(['table' => $table]);
                 $roomData = $stmt->fetch();
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if (!$roomData) {
                     throw new Exception('Meja tidak ditemukan!');
                 }
                 if ($guests > $roomData['seats']) {
                     throw new Exception("Meja ini hanya memiliki {$roomData['seats']} kursi! Anda memesan {$guests} tamu. Silakan pilih meja yang lebih besar.");
                 }
-                // Cek apakah slot sudah terisi
                 $stmt = $pdo->prepare("
                     SELECT COUNT(*) as booked FROM reservation 
                     WHERE id_reservation_room = :table 
@@ -116,21 +111,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     AND HOUR(reservation_start) = :hour
                     AND status != 'cancelled'
                 ");
-                $stmt->execute([
-                    'table' => $table,
-                    'date' => $date,
-                    'hour' => $hour
-                ]);
+                $stmt->execute(['table' => $table, 'date' => $date, 'hour' => $hour]);
                 $isBooked = $stmt->fetchColumn() > 0;
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if ($isBooked) {
                     throw new Exception('Slot waktu ini sudah dipesan!');
                 }
-                // Cari atau buat user baru
                 $stmt = $pdo->prepare("SELECT id_user FROM users WHERE fullname = :name LIMIT 1");
                 $stmt->execute(['name' => $name]);
                 $userId = $stmt->fetchColumn();
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if (!$userId) {
                     $stmt = $pdo->prepare("
                         INSERT INTO users (fullname, password_hash, role) 
@@ -141,9 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         'password' => password_hash('default123', PASSWORD_BCRYPT)
                     ]);
                     $userId = $pdo->lastInsertId();
-                    $stmt->closeCursor(); // FIX: Close cursor
+                    $stmt->closeCursor();
                 }
-                // Insert reservasi - MENAMBAHKAN customer_name
                 $reservationStart = $date . ' ' . str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00:00';
                 $stmt = $pdo->prepare("
                     INSERT INTO reservation (
@@ -158,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ");
                 $stmt->execute([
                     'id_user' => $userId,
-                    'customer_name' => $name, // MENYIMPAN customer_name
+                    'customer_name' => $name,
                     'id_room' => $table,
                     'seats' => $guests,
                     'res_start' => $reservationStart,
@@ -166,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     'phone' => $phone,
                     'email' => $email
                 ]);
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 $resId = $pdo->lastInsertId();
                 $response['success'] = true;
                 $response['message'] = 'Reservasi berhasil ditambahkan';
@@ -190,32 +179,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $pdo->prepare("SELECT id_user FROM reservation WHERE id_reservation = :id");
                 $stmt->execute(['id' => $id]);
                 $reservation = $stmt->fetch();
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if (!$reservation) {
                     throw new Exception('Reservasi tidak ditemukan!');
                 }
                 $updateFields = [];
                 $params = ['id' => $id];
-                // Update user name
                 if (isset($_POST['name']) && !empty(trim($_POST['name']))) {
-                    $stmt = $pdo->prepare("
-                        UPDATE users u 
-                        LEFT JOIN reservation r ON u.id_user = r.id_user 
-                        SET u.fullname = :name 
-                        WHERE r.id_reservation = :id
-                    ");
+                    $stmt = $pdo->prepare("UPDATE users u LEFT JOIN reservation r ON u.id_user = r.id_user SET u.fullname = :name WHERE r.id_reservation = :id");
                     $stmt->execute(['name' => trim($_POST['name']), 'id' => $id]);
-                    $stmt->closeCursor(); // FIX: Close cursor
-                    // Update customer_name di tabel reservation juga
-                    $stmt = $pdo->prepare("
-                        UPDATE reservation 
-                        SET customer_name = :name 
-                        WHERE id_reservation = :id
-                    ");
+                    $stmt->closeCursor();
+                    $stmt = $pdo->prepare("UPDATE reservation SET customer_name = :name WHERE id_reservation = :id");
                     $stmt->execute(['name' => trim($_POST['name']), 'id' => $id]);
                     $stmt->closeCursor();
                 }
-                // Update reservation fields
                 if (isset($_POST['phone']) && !empty(trim($_POST['phone']))) {
                     $updateFields[] = "phone_number = :phone";
                     $params['phone'] = trim($_POST['phone']);
@@ -232,13 +209,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $updateFields[] = "status = :status";
                     $params['status'] = $_POST['status'];
                 }
-                // Update timestamp
                 $updateFields[] = "updated_at = NOW()";
                 if (!empty($updateFields)) {
                     $sql = "UPDATE reservation SET " . implode(', ', $updateFields) . " WHERE id_reservation = :id";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute($params);
-                    $stmt->closeCursor(); // FIX: Close cursor
+                    $stmt->closeCursor();
                 }
                 $response['success'] = true;
                 $response['message'] = 'Reservasi berhasil diupdate';
@@ -252,13 +228,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $pdo->prepare("SELECT id_reservation FROM reservation WHERE id_reservation = :id");
                 $stmt->execute(['id' => $id]);
                 $exists = $stmt->fetch();
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if (!$exists) {
                     throw new Exception('Reservasi tidak ditemukan!');
                 }
                 $stmt = $pdo->prepare("DELETE FROM reservation WHERE id_reservation = :id");
                 $stmt->execute(['id' => $id]);
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 $response['success'] = true;
                 $response['message'] = 'Reservasi berhasil dihapus';
                 $response['timestamp'] = date('Y-m-d H:i:s');
@@ -278,14 +254,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ");
                 $stmt->execute(['id' => $id]);
                 $res = $stmt->fetch();
-                $stmt->closeCursor(); // FIX: Close cursor
+                $stmt->closeCursor();
                 if ($res) {
                     $response['success'] = true;
                     $response['data'] = [
                         'id' => $res['id_reservation'],
                         'table' => $res['id_reservation_room'],
                         'hour' => (int)date('H', strtotime($res['reservation_start'])),
-                        'name' => $res['display_name'], // MENGGUNAKAN display_name
+                        'name' => $res['display_name'],
                         'phone' => $res['phone_number'],
                         'email' => $res['email_address'],
                         'guests' => $res['seats'],
@@ -308,13 +284,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 // ==========================================
-// GET DATA UNTUK TAMPILAN - FIXED PENDING RESULT SETS
+// GET DATA UNTUK TAMPILAN
 // ==========================================
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
-// Simpan tanggal di session
 $_SESSION['selected_date'] = $selectedDate;
 try {
-    // Get reservations - MENGGUNAKAN LEFT JOIN AGAR DATA RESERVASI CUSTOMER MUNCUL
     $stmt = $pdo->prepare("
         SELECT r.*, rr.seats as table_capacity, 
                COALESCE(r.customer_name, u.fullname, 'Guest') as display_name
@@ -327,15 +301,13 @@ try {
     ");
     $stmt->execute(['date' => $selectedDate]);
     $reservations = $stmt->fetchAll();
-    $stmt->closeCursor(); // FIX: Close cursor
-    // Get rooms
+    $stmt->closeCursor();
     $stmt = $pdo->query("SELECT id_reservation_room, seats FROM reservation_rooms ORDER BY id_reservation_room");
     $rooms = $stmt->fetchAll();
-    $stmt->closeCursor(); // FIX: Close cursor
+    $stmt->closeCursor();
 } catch (PDOException $e) {
-    die("Error fetching data: " . $e->getMessage());
+    die("Error fetching  " . $e->getMessage());
 }
-// Helper function
 function getReservation($table, $hour, $data) {
     foreach ($data as $res) {
         if ($res['id_reservation_room'] == $table && 
@@ -344,7 +316,7 @@ function getReservation($table, $hour, $data) {
                 'id' => $res['id_reservation'],
                 'table' => $res['id_reservation_room'],
                 'hour' => (int)date('H', strtotime($res['reservation_start'])),
-                'name' => $res['display_name'], // MENGGUNAKAN display_name
+                'name' => $res['display_name'],
                 'phone' => $res['phone_number'],
                 'email' => $res['email_address'],
                 'guests' => $res['seats'],
@@ -766,18 +738,10 @@ function getReservation($table, $hour, $data) {
             font-weight: 600;
             margin-top: 2px;
         }
-        .st-pending {
-            background: linear-gradient(135deg, #f39c12, #d35400);
-        }
-        .st-confirmed {
-            background: linear-gradient(135deg, #17b79a, #117a65);
-        }
-        .st-seated {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-        .st-cancelled {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-        }
+        .st-pending { background: linear-gradient(135deg, #f39c12, #d35400); }
+        .st-confirmed { background: linear-gradient(135deg, #17b79a, #117a65); }
+        .st-seated { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .st-cancelled { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
         .modal {
             display: none;
             position: fixed;
@@ -830,9 +794,7 @@ function getReservation($table, $hour, $data) {
         .modal-close:hover {
             background: rgba(255, 255, 255, 0.1);
         }
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
         .form-label {
             display: block;
             margin-bottom: 6px;
@@ -840,9 +802,7 @@ function getReservation($table, $hour, $data) {
             color: var(--gray-light);
             font-size: 14px;
         }
-        .form-label .required {
-            color: var(--red-accent);
-        }
+        .form-label .required { color: var(--red-accent); }
         .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 10px 14px;
@@ -881,19 +841,9 @@ function getReservation($table, $hour, $data) {
             font-weight: 600;
             transition: 0.2s;
         }
-        .btn-primary {
-            background: var(--pink-primary);
-            color: var(--black);
-        }
-        .btn-secondary {
-            background: var(--dark-secondary);
-            color: var(--white);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .btn-danger {
-            background: var(--red-accent);
-            color: var(--white);
-        }
+        .btn-primary { background: var(--pink-primary); color: var(--black); }
+        .btn-secondary { background: var(--dark-secondary); color: var(--white); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-danger { background: var(--red-accent); color: var(--white); }
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -909,44 +859,18 @@ function getReservation($table, $hour, $data) {
             justify-content: space-between;
             align-items: center;
         }
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-        .detail-label {
-            color: var(--gray-light);
-            font-weight: 600;
-        }
-        .detail-value {
-            color: var(--white);
-            font-weight: 500;
-        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { color: var(--gray-light); font-weight: 600; }
+        .detail-value { color: var(--white); font-weight: 500; }
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .main {
-                margin-left: 0;
-                width: 100%;
-            }
-            .menu-toggle {
-                display: flex;
-            }
-            .user-text {
-                display: none;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .res-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .res-actions {
-                flex-direction: column;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main { margin-left: 0; width: 100%; }
+            .menu-toggle { display: flex; }
+            .user-text { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+            .res-toolbar { flex-direction: column; align-items: stretch; }
+            .res-actions { flex-direction: column; }
         }
     </style>
 </head>
@@ -957,7 +881,7 @@ function getReservation($table, $hour, $data) {
             <div class="sidebar-top">
                 <div class="brand">Bitehive</div>
                 <nav class="nav">
-                    <a href="dashboard.php" class="nav-item">
+                    <a href="../dashboard/index.php" class="nav-item">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect width="7" height="9" x="3" y="3" rx="1"/>
@@ -968,7 +892,7 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">Dashboard</span>
                     </a>
-                    <a href="user_management.php" class="nav-item">
+                    <a href="../user_management/index.php" class="nav-item">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
@@ -977,7 +901,7 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">User Management</span>
                     </a>
-                    <a href="inventory.php" class="nav-item">
+                    <a href="../inventory/index.php" class="nav-item">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/>
@@ -988,7 +912,7 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">Inventory</span>
                     </a>
-                    <a href="admin_reservation.php" class="nav-item active">
+                    <a href="index.php" class="nav-item active">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M16 14v2.2l1.6 1"/>
@@ -1001,7 +925,7 @@ function getReservation($table, $hour, $data) {
                         </span>
                         <span class="label">Reservation</span>
                     </a>
-                    <a href="transactions.php" class="nav-item">
+                    <a href="../transactions_management/transaction_admin.php" class="nav-item">
                         <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
@@ -1013,7 +937,7 @@ function getReservation($table, $hour, $data) {
                 </nav>
             </div>
             <div class="sidebar-bottom">
-                <button class="logout-btn" id="logoutBtn" onclick="location.href='logout.php'">
+                <button class="logout-btn" id="logoutBtn" onclick="location.href='../../../auth/views/login.php'">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m16 17 5-5-5-5"/>
                         <path d="M21 12H9"/>
@@ -1203,23 +1127,19 @@ function getReservation($table, $hour, $data) {
         </div>
     </div>
     <script>
-        // Data konfigurasi
         const HOURS = <?= json_encode($hours) ?>;
         const FLOOR_TABLES = <?= json_encode($floor_tables) ?>;
         const ALL_ROOMS = <?= json_encode($rooms) ?>;
         const FLOOR_DATA = <?= json_encode($floor_data) ?>;
-        // DOM Elements
         const sidebar = document.getElementById('sidebar');
         const menuToggle = document.getElementById('menuToggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        // Sidebar functionality
         function toggleSidebar() {
             sidebar.classList.toggle('active');
             sidebarOverlay.classList.toggle('active');
         }
         menuToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
-        // Date filter functionality
         document.getElementById('dateFilter').addEventListener('change', function() {
             const currentFloor = '<?= $selectedFloor ?>';
             window.location.href = '?date=' + this.value + '&floor=' + currentFloor;
@@ -1228,7 +1148,6 @@ function getReservation($table, $hour, $data) {
             const currentDate = document.getElementById('dateFilter').value;
             window.location.href = '?date=' + currentDate + '&floor=' + floor;
         }
-        // Modal functions
         function openAddModal() {
             document.getElementById('addModal').classList.add('active');
             document.getElementById('addFloor').value = '<?= $selectedFloor ?>';
@@ -1276,7 +1195,6 @@ function getReservation($table, $hour, $data) {
                 document.getElementById('addGuests').value = seats;
             }
         }
-        // Add reservation form handler
         document.getElementById('addForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -1293,10 +1211,7 @@ function getReservation($table, $hour, $data) {
             formData.append('email', document.getElementById('addEmail').value);
             formData.append('date', document.getElementById('addDate').value);
             try {
-                const response = await fetch('', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     alert(result.message);
@@ -1312,7 +1227,6 @@ function getReservation($table, $hour, $data) {
                 submitBtn.disabled = false;
             }
         });
-        // Detail modal functions
         function closeDetailModal() {
             document.getElementById('detailModal').classList.remove('active');
         }
@@ -1323,10 +1237,7 @@ function getReservation($table, $hour, $data) {
             formData.append('action', 'get');
             formData.append('id', id);
             try {
-                const response = await fetch('', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     const data = result.data;
@@ -1376,7 +1287,6 @@ function getReservation($table, $hour, $data) {
                 document.getElementById('detailContent').innerHTML = '<p style="text-align: center; color: var(--red-accent);">Failed to load reservation details</p>';
             }
         }
-        // Edit modal functions
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
         }
@@ -1386,10 +1296,7 @@ function getReservation($table, $hour, $data) {
             formData.append('action', 'get');
             formData.append('id', id);
             try {
-                const response = await fetch('', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     const data = result.data;
@@ -1407,7 +1314,6 @@ function getReservation($table, $hour, $data) {
                 alert('Error loading edit form');
             }
         }
-        // Edit form handler
         document.getElementById('editForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -1423,10 +1329,7 @@ function getReservation($table, $hour, $data) {
             formData.append('guests', document.getElementById('editGuests').value);
             formData.append('status', document.getElementById('editStatus').value);
             try {
-                const response = await fetch('', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     alert(result.message);
@@ -1442,22 +1345,14 @@ function getReservation($table, $hour, $data) {
                 submitBtn.disabled = false;
             }
         });
-        // Delete reservation
         async function deleteReservation(id) {
-            if (!id) {
-                id = document.getElementById('editId').value;
-            }
-            if (!confirm('Are you sure you want to delete this reservation? This action cannot be undone.')) {
-                return;
-            }
+            if (!id) id = document.getElementById('editId').value;
+            if (!confirm('Are you sure you want to delete this reservation? This action cannot be undone.')) return;
             const formData = new FormData();
             formData.append('action', 'delete');
             formData.append('id', id);
             try {
-                const response = await fetch('', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('', { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     alert(result.message);
@@ -1471,13 +1366,11 @@ function getReservation($table, $hour, $data) {
                 alert('Error: ' + error.message);
             }
         }
-        // Utility functions
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeAddModal();
@@ -1485,7 +1378,6 @@ function getReservation($table, $hour, $data) {
                 closeEditModal();
             }
         });
-        // Responsive behavior
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('active');
