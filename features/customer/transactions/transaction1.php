@@ -14,38 +14,23 @@ if ($mysqli->connect_errno) {
 // ====== HELPER FUNCTION ======
 function getUserName($mysqli, $id_user) {
     $id_user = (int)$id_user;
-    if ($id_user <= 0) {
-        return 'Unknown';
-    }
+    if ($id_user <= 0) return 'Unknown';
 
-    $default = 'User #' . $id_user;
-
-    $stmt = $mysqli->prepare("SELECT * FROM users WHERE id_user = ? LIMIT 1");
-    if (!$stmt) {
-        return $default;
-    }
+    $stmt = $mysqli->prepare("SELECT fullname FROM users WHERE id_user = ? LIMIT 1");
+    if (!$stmt) return "User #$id_user";
 
     $stmt->bind_param("i", $id_user);
-    if (!$stmt->execute()) {
-        $stmt->close();
-        return $default;
-    }
-
+    $stmt->execute();
     $res = $stmt->get_result();
+
     if ($row = $res->fetch_assoc()) {
-        if (!empty($row['fullname'])) {
-            $default = $row['fullname'];
-        }
+        return !empty($row['fullname']) ? $row['fullname'] : "User #$id_user";
     }
 
-    $stmt->close();
-    return $default;
+    return "User #$id_user";
 }
 
 function formatIdr($amount) {
-    if ($amount === null) {
-        return 'IDR -';
-    }
     return 'IDR ' . number_format((float)$amount, 0, ',', '.');
 }
 
@@ -65,46 +50,53 @@ $orderSql = "
         p.received,
         p.return_amount
     FROM transaction_order t
-    JOIN cart_order c ON t.id_cart_order = c.id_cart_order
+    LEFT JOIN cart_order c ON t.id_cart_order = c.id_cart_order
     JOIN payment_order p ON t.id_payment_order = p.id_payment_order
     ORDER BY t.created_at DESC
 ";
 
-if ($result = $mysqli->query($orderSql)) {
-    while ($row = $result->fetch_assoc()) {
-        $orders[] = $row;
-    }
+$result = $mysqli->query($orderSql);
+if ($result) {
+    $orders = $result->fetch_all(MYSQLI_ASSOC);
     $result->free();
 }
 
 // ====== AMBIL DATA RESERVATION ======
-$reservations = [];
-$resSql = "
-    SELECT
-        tr.id_transaction_reservation,
-        tr.id_user,
-        tr.id_reservation,
-        tr.status AS trx_status,
-        tr.created_at,
-        r.seats,
-        r.reservation_date,
-        r.reservation_start,
-        rr.price_place,
-        pr.total_amount
-    FROM transaction_reservation tr
-    JOIN reservation r ON tr.id_reservation = r.id_reservation
-    JOIN reservation_rooms rr ON r.id_reservation_room = rr.id_reservation_room
-    JOIN payment_reservation pr ON tr.id_payment_reservation = pr.id_payment_reservation
-    ORDER BY tr.created_at DESC
-";
+// CEK DULU TABEL AGAR TIDAK ERROR JIKA BELUM ADA
+$cekReservationTable = $mysqli->query("SHOW TABLES LIKE 'transaction_reservation'");
 
-if ($result = $mysqli->query($resSql)) {
-    while ($row = $result->fetch_assoc()) {
-        $reservations[] = $row;
+$reservations = [];
+
+if ($cekReservationTable && $cekReservationTable->num_rows > 0) {
+
+    $resSql = "
+        SELECT
+            tr.id_transaction_reservation,
+            tr.id_user,
+            tr.id_reservation,
+            tr.status AS trx_status,
+            tr.created_at,
+            r.seats,
+            r.reservation_date,
+            r.reservation_start,
+            rr.price_place,
+            pr.total_amount
+        FROM transaction_reservation tr
+        JOIN reservation r ON tr.id_reservation = r.id_reservation
+        JOIN reservation_rooms rr ON r.id_reservation_room = rr.id_reservation_room
+        JOIN payment_reservation pr ON tr.id_payment_reservation = pr.id_payment_reservation
+        ORDER BY tr.created_at DESC
+    ";
+
+    $result2 = $mysqli->query($resSql);
+    if ($result2) {
+        $reservations = $result2->fetch_all(MYSQLI_ASSOC);
+        $result2->free();
     }
-    $result->free();
 }
+
 ?>
+
 <!doctype html>
 <html lang="id">
 <head>
