@@ -1,3 +1,7 @@
+
+-- =====================================
+-- 4. PAYMENT ORDER
+-- =====================================
 CREATE TABLE payment_order (
     id_payment_order INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,
@@ -9,6 +13,10 @@ CREATE TABLE payment_order (
     status ENUM('pending','confirmed') NOT NULL DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (id_user) REFERENCES users(id_user),
+    FOREIGN KEY (id_user) REFERENCES users(id_user)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+
     FOREIGN KEY (id_cart_order) REFERENCES cart_order(id_cart_order)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

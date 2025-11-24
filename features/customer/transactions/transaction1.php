@@ -49,7 +49,7 @@ function formatIdr($amount) {
     return 'IDR ' . number_format((float)$amount, 0, ',', '.');
 }
 
-// ====== DATA ORDER ======
+// ====== AMBIL DATA ORDER ======
 $orders = [];
 $orderSql = "
     SELECT 
@@ -61,7 +61,6 @@ $orderSql = "
         c.name_item,
         c.quantity,
         c.subtotal,
-        c.price,
         p.total_amount,
         p.received,
         p.return_amount
@@ -78,7 +77,7 @@ if ($result = $mysqli->query($orderSql)) {
     $result->free();
 }
 
-// ====== DATA RESERVATION ======
+// ====== AMBIL DATA RESERVATION ======
 $reservations = [];
 $resSql = "
     SELECT
@@ -116,6 +115,7 @@ if ($result = $mysqli->query($resSql)) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 
+  <!-- CSS di folder yang sama -->
   <link rel="stylesheet" href="transaction1.css">
 </head>
 <body>
@@ -125,23 +125,32 @@ if ($result = $mysqli->query($resSql)) {
         <div class="brand">Bitehive</div>
 
         <nav class="nav" role="navigation" aria-label="Main navigation">
+          <!-- perbaikan path: ../../../icon/... -->
           <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
-            <span class="icon" style="-webkit-mask-image: url('icon/layout-dashboard.png'); mask-image: url('icon/layout-dashboard.png');"></span>
+            <span class="icon"
+              style="-webkit-mask-image: url('../../../icon/layout-dashboard.png'); mask-image: url('../../../icon/layout-dashboard.png');">
+            </span>
             <span class="label">Dashboard</span>
           </button>
 
           <button class="nav-item" id="nav-order" aria-label="Order" data-target="order">
-            <span class="icon" style="-webkit-mask-image: url('icon/chart-pie.png'); mask-image: url('icon/chart-pie.png');"></span>
+            <span class="icon"
+              style="-webkit-mask-image: url('../../../icon/chart-pie.png'); mask-image: url('../../../icon/chart-pie.png');">
+            </span>
             <span class="label">Order</span>
           </button>
 
           <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
-            <span class="icon" style="-webkit-mask-image: url('icon/calendar-arrow-up.png'); mask-image: url('icon/calendar-arrow-up.png');"></span>
+            <span class="icon"
+              style="-webkit-mask-image: url('../../../icon/calendar-arrow-up.png'); mask-image: url('../../../icon/calendar-arrow-up.png');">
+            </span>
             <span class="label">Reservation</span>
           </button>
 
           <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
-            <span class="icon" style="-webkit-mask-image: url('icon/arrow-left-right.png'); mask-image: url('icon/arrow-left-right.png');"></span>
+            <span class="icon"
+              style="-webkit-mask-image: url('../../../icon/arrow-left-right.png'); mask-image: url('../../../icon/arrow-left-right.png');">
+            </span>
             <span class="label">Transaction</span>
           </button>
         </nav>
@@ -149,7 +158,8 @@ if ($result = $mysqli->query($resSql)) {
 
       <div class="sidebar-bottom">
         <button class="logout" aria-label="Logout"
-        style="-webkit-mask-image: url('icon/log-out.png'); mask-image: url('icon/log-out.png');"></button>
+          style="-webkit-mask-image: url('../../../icon/log-out.png'); mask-image: url('../../../icon/log-out.png');">
+        </button>
       </div>
     </aside>
 
@@ -188,34 +198,33 @@ if ($result = $mysqli->query($resSql)) {
           <?php
           $badgeNo = 1;
 
-          // ====== CARD ORDER ======
+          // ORDERS
           foreach ($orders as $order):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-              $statusDb = strtolower($order['trx_status']); // pending / confirmed / cancelled
+              $statusDb = $order['trx_status']; // pending / confirmed / cancelled
               if ($statusDb === 'confirmed') {
                   $statusClass = 'completed';
                   $statusLabel = '✓ Completed';
-              } elseif ($statusDb === 'cancelled' || $statusDb === 'cancel' || $statusDb === 'canceled') {
+              } elseif ($statusDb === 'cancelled') {
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
               } else {
-                  // termasuk pending atau status lain yang belum di-approve admin
                   $statusClass = 'pending';
-                  $statusLabel = '⏱ Pending';
+                  $statusLabel = '⌛ Pending';
               }
 
               $ts = $order['created_at'] ? strtotime($order['created_at']) : time();
               $customerName = getUserName($mysqli, $order['id_user']);
               $totalAmount = $order['total_amount'];
+
               $dateText = date('l, d-m-Y', $ts);
               $timeText = date('h : i A', $ts);
           ?>
           <article
             class="card"
-            data-type="order"
-            data-order-id="<?php echo (int)$order['id_transaction_order']; ?>"
             data-status="<?php echo $statusClass; ?>"
+            data-order-id="<?php echo (int)$order['id_transaction_order']; ?>"
           >
             <div class="card-header">
               <div class="badge"><?php echo $badge; ?></div>
@@ -255,21 +264,20 @@ if ($result = $mysqli->query($resSql)) {
               $badgeNo++;
           endforeach;
 
-          // ====== CARD RESERVATION ======
+          // RESERVATIONS
           foreach ($reservations as $reservation):
               $badge = str_pad($badgeNo, 2, '0', STR_PAD_LEFT);
 
-              $statusDb = strtolower($reservation['trx_status']); // pending / confirmed / cancelled
+              $statusDb = $reservation['trx_status']; // pending / confirmed / cancelled
               if ($statusDb === 'confirmed') {
                   $statusClass = 'completed';
                   $statusLabel = '✓ Completed';
-              } elseif ($statusDb === 'cancelled' || $statusDb === 'cancel' || $statusDb === 'canceled') {
+              } elseif ($statusDb === 'cancelled') {
                   $statusClass = 'cancelled';
                   $statusLabel = '✕ Cancelled';
               } else {
-                  // pending → belum di-approve admin
                   $statusClass = 'pending';
-                  $statusLabel = '⏱ Pending';
+                  $statusLabel = '⌛ Pending';
               }
 
               $ts = $reservation['created_at'] ? strtotime($reservation['created_at']) : time();
@@ -282,12 +290,12 @@ if ($result = $mysqli->query($resSql)) {
           ?>
           <article
             class="card reservation-card"
-            data-type="reservation"
-            data-reservation-id="<?php echo (int)$reservation['id_transaction_reservation']; ?>"
             data-status="reservation"
+            data-reservation-id="<?php echo (int)$reservation['id_transaction_reservation']; ?>"
           >
             <div class="reservation-image-container">
-              <img src="foto/download.jpg" alt="Table photo">
+              <!-- perbaikan path foto -->
+              <img src="../../../foto/download.jpg" alt="Table photo">
               <div class="reservation-overlay-info">
                 <div class="badge"><?php echo $badge; ?></div>
                 <div class="overlay-meta">
@@ -299,7 +307,6 @@ if ($result = $mysqli->query($resSql)) {
 
             <div class="reservation-body-new">
               <div class="status <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></div>
-              
               <div class="reservation-datetime">
                 <?php echo $dateText; ?> • <?php echo $timeText; ?>
               </div>
@@ -335,7 +342,7 @@ if ($result = $mysqli->query($resSql)) {
     </main>
   </div>
 
-  <!-- Modal overlay for "View All" (order details) -->
+  <!-- MODAL ORDER -->
   <div id="modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal" role="document">
       <header class="modal-header">
@@ -377,9 +384,7 @@ if ($result = $mysqli->query($resSql)) {
                 <th>Sub Total</th>
               </tr>
             </thead>
-            <tbody id="modal-items">
-              <!-- rows injected by JS -->
-            </tbody>
+            <tbody id="modal-items"></tbody>
           </table>
         </div>
 
@@ -388,12 +393,12 @@ if ($result = $mysqli->query($resSql)) {
             <div class="totals-badge">💵</div>
           </div>
           <div class="totals-right">
-            <div class="totals-row"><span>Total Prices</span><strong id="modal-total">IDR 0,00</strong></div>
+            <div class="totals-row"><span>Total Prices</span><strong id="modal-total">IDR 0</strong></div>
             <div class="totals-row"><span>Disc. 0%</span><strong>IDR 0</strong></div>
             <div class="totals-row"><span>Tax 0%</span><strong>IDR 0</strong></div>
-            <div class="totals-row"><span>Total</span><strong id="modal-grand">IDR 0,00</strong></div>
-            <div class="totals-row"><span>Received</span><strong id="modal-received">IDR 0,00</strong></div>
-            <div class="totals-row"><span>Return</span><strong id="modal-return">IDR 0,00</strong></div>
+            <div class="totals-row"><span>Total</span><strong id="modal-grand">IDR 0</strong></div>
+            <div class="totals-row"><span>Received</span><strong id="modal-received">IDR 0</strong></div>
+            <div class="totals-row"><span>Return</span><strong id="modal-return">IDR 0</strong></div>
           </div>
         </div>
 
@@ -401,13 +406,13 @@ if ($result = $mysqli->query($resSql)) {
     </div>
   </div>
 
-  <!-- Modal overlay for Reservation Detail -->
+  <!-- MODAL RESERVATION -->
   <div id="res-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal modal-reservation" role="document">
       <header class="modal-header">
         <div class="modal-breadcrumbs">
           <span class="crumb">Transaction</span>
-          <span class="crumb sep">›</span>
+          <span class="crumb sep">></span>
           <span class="crumb current">Detail of Reservation</span>
         </div>
 
@@ -416,7 +421,8 @@ if ($result = $mysqli->query($resSql)) {
 
       <div class="modal-content reservation-detail-content">
         <div class="reservation-detail-left">
-          <img id="res-modal-image" src="foto/download.jpg" alt="Table photo">
+          <!-- perbaikan path foto -->
+          <img id="res-modal-image" src="../../../foto/download.jpg" alt="Table photo">
         </div>
 
         <div class="reservation-detail-right">
@@ -455,20 +461,18 @@ if ($result = $mysqli->query($resSql)) {
       });
     })();
 
-    /* LIMIT ITEMS TO 3 (kalau nanti ada multi item) */
+    /* BATAS 3 ITEM */
     (function () {
       const allCards = document.querySelectorAll('.card:not(.reservation-card)');
       allCards.forEach(card => {
         const items = card.querySelectorAll('.items .item');
         items.forEach((item, idx) => {
-          if (idx >= 3) {
-            item.classList.add('hidden-item');
-          }
+          if (idx >= 3) item.classList.add('hidden-item');
         });
       });
     })();
 
-    /* FILTER & SEARCH */
+    /* FILTER + SEARCH */
     (function () {
       const tabs = document.querySelectorAll('.tab');
       const cards = document.querySelectorAll('.card');
@@ -481,31 +485,30 @@ if ($result = $mysqli->query($resSql)) {
           const name = (card.querySelector('.name')?.textContent || '').toLowerCase();
           const order = (card.querySelector('.order')?.textContent || '').toLowerCase();
           const isReservation = status === 'reservation';
-
           const matchesFilter =
             filter === 'all' ||
             (filter === 'reservation' && isReservation) ||
-            (!isReservation && filter === status);
-
+            (filter === status);
           const matchesQuery =
             !q ||
             name.includes(q) ||
             order.includes(q) ||
             card.textContent.toLowerCase().includes(q);
-
           card.style.display = (matchesFilter && matchesQuery) ? '' : 'none';
         });
       }
 
-      tabs.forEach(t => t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        filterCards(t.dataset.filter, search.value);
-      }));
+      tabs.forEach(t => {
+        t.addEventListener('click', () => {
+          tabs.forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          filterCards(t.dataset.filter, search.value);
+        });
+      });
 
       if (search) {
         search.addEventListener('input', (e) => {
-          const activeTab = document.querySelector('.tab.active').dataset.filter;
+          const activeTab = document.querySelector('.tab.active')?.dataset.filter || 'all';
           filterCards(activeTab, e.target.value);
         });
       }
@@ -513,7 +516,7 @@ if ($result = $mysqli->query($resSql)) {
       filterCards('all', '');
     })();
 
-    /* VIEW ALL (order) MODAL LOGIC */
+    /* VIEW ALL ORDER MODAL */
     (function () {
       const viewBtns = document.querySelectorAll('.viewall');
       const modalOverlay = document.getElementById('modal-overlay');
@@ -528,32 +531,20 @@ if ($result = $mysqli->query($resSql)) {
       const modalGrand = document.getElementById('modal-grand');
       const modalStatusBtn = document.getElementById('modal-status-btn');
 
-      const modalReceived = document.getElementById('modal-received');
-      const modalReturn = document.getElementById('modal-return');
-
       function formatIDR(n) {
-        const num = Number(n) || 0;
-        return 'IDR ' + num.toLocaleString('id-ID') + ',00';
-      }
-
-      function mapStatus(status) {
-        status = (status || '').toString().toLowerCase();
-        if (status === 'confirmed') return { cls: 'completed', label: '✓ Completed' };
-        if (status === 'cancelled' || status === 'cancel' || status === 'canceled') return { cls: 'cancelled', label: '✕ Cancelled' };
-        if (status === 'pending') return { cls: 'pending', label: '⏱ Pending' };
-        return { cls: 'pending', label: '⏱ Pending' };
+        return 'IDR ' + Number(n || 0).toLocaleString('id-ID');
       }
 
       viewBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           const card = e.target.closest('.card');
-          if (!card || card.dataset.type !== 'order') return;
+          if (!card || card.classList.contains('reservation-card')) return;
 
           const badge = card.querySelector('.badge')?.textContent.trim() || '';
           const name = card.querySelector('.name')?.textContent.trim() || '';
           const order = card.querySelector('.order')?.textContent.trim() || '';
           const date = card.querySelector('.row.info > div')?.textContent.trim() || '';
-          const statusCls = card.dataset.status || 'pending';
+          const status = card.dataset.status || 'completed';
 
           const itemNodes = Array.from(card.querySelectorAll('.item'));
           const items = itemNodes.map((it, idx) => {
@@ -571,10 +562,17 @@ if ($result = $mysqli->query($resSql)) {
           modalOrder.textContent = order;
           modalDate.textContent = date;
 
-          const mapped = mapStatus(statusCls === 'completed' ? 'confirmed' : (statusCls === 'cancelled' ? 'cancelled' : 'pending'));
           modalStatusBtn.classList.remove('completed', 'cancelled', 'pending');
-          modalStatusBtn.classList.add(mapped.cls);
-          modalStatusBtn.textContent = mapped.label;
+          if (status === 'cancelled') {
+            modalStatusBtn.classList.add('cancelled');
+            modalStatusBtn.textContent = '✕ Cancelled';
+          } else if (status === 'pending') {
+            modalStatusBtn.classList.add('pending');
+            modalStatusBtn.textContent = '⌛ Pending';
+          } else {
+            modalStatusBtn.classList.add('completed');
+            modalStatusBtn.textContent = '✓ Completed';
+          }
 
           modalItems.innerHTML = items.map(it => `
             <tr>
@@ -588,8 +586,6 @@ if ($result = $mysqli->query($resSql)) {
 
           modalTotal.textContent = formatIDR(total);
           modalGrand.textContent = formatIDR(total);
-          modalReceived.textContent = formatIDR(total); // asumsi
-          modalReturn.textContent = formatIDR(0);
 
           modalOverlay.setAttribute('aria-hidden', 'false');
           modalOverlay.classList.add('open');
@@ -606,7 +602,7 @@ if ($result = $mysqli->query($resSql)) {
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal(); });
     })();
 
-    /* VIEW ALL RESERVATION MODAL */
+    /* VIEW RESERVATION MODAL */
     (function () {
       const resBtns = document.querySelectorAll('.view-reservation');
       const resOverlay = document.getElementById('res-modal-overlay');
@@ -629,18 +625,18 @@ if ($result = $mysqli->query($resSql)) {
           const tableName = card.querySelector('.overlay-meta .name')?.textContent.trim() || 'Table';
           const reservationId = card.querySelector('.overlay-meta .order')?.textContent.trim() || '#id';
           const datetime = card.querySelector('.reservation-datetime')?.textContent.trim() || '';
-          const seats = card.querySelector('.info-item .info-value')?.textContent.trim() || 'n/a';
+          const seats = card.querySelector('.info-value')?.textContent.trim() || 'n/a';
           const infoItems = card.querySelectorAll('.info-item');
           const customer = infoItems[2]?.querySelector('.info-value')?.textContent.trim() || '';
           const deposit = infoItems[1]?.querySelector('.info-value')?.textContent.trim() || '';
-          const img = card.querySelector('.reservation-image-container img')?.getAttribute('src') || 'foto/download.jpg';
+          const img = card.querySelector('.reservation-image-container img')?.getAttribute('src') || '../../../foto/download.jpg';
 
           resImage.src = img;
           resTable.textContent = tableName;
           resId.textContent = reservationId;
           resCustomer.textContent = customer;
           resSeats.textContent = seats;
-          
+
           if (datetime.indexOf('•') > -1) {
             const parts = datetime.split('•').map(s => s.trim());
             resDate.textContent = parts[0];
@@ -664,84 +660,6 @@ if ($result = $mysqli->query($resSql)) {
       resClose.addEventListener('click', closeResModal);
       resOverlay.addEventListener('click', (e) => { if (e.target === resOverlay) closeResModal(); });
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && resOverlay.classList.contains('open')) closeResModal(); });
-    })();
-
-    /* JS REALTIME STATUS (POLLING 2 DETIK) */
-    (function () {
-      const POLL_INTERVAL = 2000; // 2 detik
-
-      function mapStatus(status) {
-        status = (status || '').toString().toLowerCase();
-        if (status === 'confirmed') {
-          return { cls: 'completed', label: '✓ Completed' };
-        }
-        if (status === 'cancelled' || status === 'cancel' || status === 'canceled') {
-          return { cls: 'cancelled', label: '✕ Cancelled' };
-        }
-        if (status === 'pending') {
-          return { cls: 'pending', label: '⏱ Pending' };
-        }
-        return { cls: 'pending', label: '⏱ Pending' };
-      }
-
-      function applyStatuses(data) {
-        if (!data || !data.success) return;
-
-        // UPDATE ORDER
-        if (Array.isArray(data.orders)) {
-          data.orders.forEach(o => {
-            const id = o.id;
-            const statusDb = o.status;
-            const card = document.querySelector('.card[data-type="order"][data-order-id="' + id + '"]');
-            if (!card) return;
-            const mapped = mapStatus(statusDb);
-            const statusEl = card.querySelector('.status');
-            if (statusEl) {
-              statusEl.classList.remove('completed', 'pending', 'cancelled');
-              statusEl.classList.add(mapped.cls);
-              statusEl.textContent = mapped.label;
-            }
-            // untuk filter tab
-            card.dataset.status = mapped.cls;
-          });
-        }
-
-        // UPDATE RESERVATION
-        if (Array.isArray(data.reservations)) {
-          data.reservations.forEach(r => {
-            const id = r.id;
-            const statusDb = r.status;
-            const card = document.querySelector('.card[data-type="reservation"][data-reservation-id="' + id + '"]');
-            if (!card) return;
-            const mapped = mapStatus(statusDb);
-            const statusEl = card.querySelector('.status');
-            if (statusEl) {
-              statusEl.classList.remove('completed', 'pending', 'cancelled');
-              statusEl.classList.add(mapped.cls);
-              statusEl.textContent = mapped.label;
-            }
-            // data-status untuk reservation tetap 'reservation' supaya tab Reservation tetap bekerja
-          });
-        }
-      }
-
-      function fetchStatuses() {
-        fetch('transaction_statuses.php', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          cache: 'no-store'
-        })
-          .then(res => res.json())
-          .then(applyStatuses)
-          .catch(err => {
-            console.error('Gagal fetch status transaksi:', err);
-          });
-      }
-
-      // mulai polling
-      setInterval(fetchStatuses, POLL_INTERVAL);
-      // panggil sekali di awal supaya langsung sinkron
-      fetchStatuses();
     })();
   </script>
 
