@@ -1,14 +1,14 @@
 <?php
 session_start();
 
-// Simulasi login (hanya untuk demo)
+// Simulasi Login Customer
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = 1;
     $_SESSION['user_name'] = 'Budi Santoso';
     $_SESSION['user_role'] = 'customer';
 }
 
-// Ambil data untuk dropdown
+// Koneksi Database
 $host = 'localhost';
 $dbname = 'restaurant';
 $username = 'root';
@@ -21,6 +21,7 @@ try {
     die("❌ DATABASE ERROR: " . $e->getMessage());
 }
 
+// Ambil data untuk dropdown
 $floor_data = [
     '1' => ['Bar', 'A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2'],
     '2' => ['D1', 'D2', 'D3', 'E1', 'E2', 'E3', 'F1', 'F2'],
@@ -30,6 +31,7 @@ $floor_data = [
 $hours = range(10, 22);
 $stmt = $pdo->query("SELECT id_reservation_room, seats FROM reservation_rooms");
 $rooms = $stmt->fetchAll();
+$stmt->closeCursor();
 ?>
 
 <!doctype html>
@@ -47,51 +49,55 @@ $rooms = $stmt->fetchAll();
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
         <nav class="nav">
-          <a href="../../features/customer/home/index.php" class="nav-link-wrapper">
-            <button class="nav-item" data-target="home" aria-label="Home">
-              <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-              </span>
-              <span class="label">Home</span>
-            </button>
-          </a>
 
-          <a href="../orders/index.php" class="nav-link-wrapper">
-            <button class="nav-item active" data-target="order" aria-label="Order">
-              <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-              </span>
-              <span class="label">Order</span>
-            </button>
-          </a>
+        <a href="../../features/customer/home/index.php" class="nav-link-wrapper">
+          <button class="nav-item" data-target="home" aria-label="Home">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            </span>
+            <span class="label">Home</span>
+          </button>
+        </a>
 
-          <a href="../../../index.php" class="nav-link-wrapper">
-            <button class="nav-item" data-target="reservation" aria-label="Reservation">
-              <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 14v2.2l1.6 1"/>
-                  <path d="M16 2v4"/>
-                  <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/>
-                  <path d="M3 10h5"/>
-                  <path d="M8 2v4"/>
-                  <circle cx="16" cy="16" r="6"/>
-                </svg>
-              </span>
-              <span class="label">Reservation</span>
-            </button>
-          </a>
+        <!-- ORDER: TIDAK AKTIF -->
+        <a href="../orders/index.php" class="nav-link-wrapper">
+          <button class="nav-item" data-target="order" aria-label="Order">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            </span>
+            <span class="label">Order</span>
+          </button>
+        </a>
 
-          <a href="../transactions/transaction1.php" class="nav-link-wrapper">
-            <button class="nav-item" data-target="transaction" aria-label="Transaction">
-              <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
-                  <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>
-                </svg>
-              </span>
-              <span class="label">Transaction</span>
-            </button>
-          </a>
+        <!-- RESERVATION: SEKARANG AKTIF ✅ -->
+        <a href="index.php" class="nav-link-wrapper">
+          <button class="nav-item active" data-target="reservation" aria-label="Reservation">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 14v2.2l1.6 1"/>
+                <path d="M16 2v4"/>
+                <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/>
+                <path d="M3 10h5"/>
+                <path d="M8 2v4"/>
+                <circle cx="16" cy="16" r="6"/>
+              </svg>
+            </span>
+            <span class="label">Reservation</span>
+          </button>
+        </a>  
+
+        <a href="../transactions/transaction1.php" class="nav-link-wrapper">
+          <button class="nav-item" data-target="transaction" aria-label="Transaction">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
+                <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>
+              </svg>
+            </span>
+            <span class="label">Transaction</span>
+          </button>
+        </a>
+          
         </nav>
       </div>
 
@@ -120,6 +126,7 @@ $rooms = $stmt->fetchAll();
         </header>
 
         <div class="content-wrapper">
+          <!-- My Reservations Section -->
           <div class="section">
             <h2 class="section-title">📋 My Reservations</h2>
             <div class="res-list" id="reservationList">
@@ -127,6 +134,7 @@ $rooms = $stmt->fetchAll();
             </div>
           </div>
 
+          <!-- New Reservation Section -->
           <div class="section">
             <h2 class="section-title">➕ New Reservation</h2>
             <form id="bookingForm">
@@ -192,7 +200,6 @@ $rooms = $stmt->fetchAll();
   </div>
 
   <script>
-    // Data yang dikirim dari PHP ke JS
     const FLOOR_DATA = <?= json_encode($floor_data) ?>;
     const ALL_ROOMS = <?= json_encode($rooms) ?>;
   </script>
