@@ -1,9 +1,13 @@
 <?php
-  session_start();
+ob_start();
+session_start();
+include 'config_db.php';
+
   if (!isset($_SESSION['role']) || $_SESSION['role'] !== "customer") {
       header("Location: ../../auth/views/login.php");
       exit;
   }
+
 ?>
 
 <!doctype html>
@@ -12,7 +16,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bitehive — Customer Home</title>
-  <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>"> <!-- Ini baris 20 index.php -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -109,7 +113,7 @@
         <div class="content">
 
         <?php 
-            include __DIR__ . '/home.php';
+            include __DIR__ . '/order.php';
           ?>
 
         </div>

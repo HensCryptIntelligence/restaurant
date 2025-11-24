@@ -21,7 +21,7 @@ session_start();
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
-
+?
         <nav class="nav">
         
         <a href="../dashboard/index.php" class="nav-link-wrapper">
