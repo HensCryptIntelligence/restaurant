@@ -1,5 +1,10 @@
 <?php
   session_start();
+
+  header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+  header("Pragma: no-cache");
+
+
   if (!isset($_SESSION['role']) || $_SESSION['role'] !== "customer") {
       header("Location: ../../auth/views/login.php");
       exit;
@@ -199,6 +204,13 @@
         menuToggle.setAttribute('aria-expanded', 'false');
       }
     });
+
+    // Mencegah kembali ke halaman sebelumnya
+    history.pushState(null, "", location.href);
+    window.onpopstate = function () {
+      history.pushState(null, "", location.href);
+    };
+
 
   </script>
 </body>

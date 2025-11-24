@@ -255,3 +255,13 @@ hr { border:0; height:1px; background: rgba(255,255,255,.05); margin:8px 0; bord
   .search-wrapper input { min-width:140px; }
   .reservation-info-grid { grid-template-columns: 1fr; }
 }
+
+.status.pending {
+  background: rgba(255, 165, 0, 0.12);
+  color: #ffa500;
+}
+
+.status-btn.pending {
+  background: rgba(255, 165, 0, 0.12);
+  color: #ffa500;
+}
