@@ -136,12 +136,14 @@ if ($cekReservationTable && $cekReservationTable->num_rows > 0) {
           </button>
         </a>
 
+        <a href="../reservations/index.php" class="nav-link-wrapper">
           <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
             <span class="icon"
               style="-webkit-mask-image: url('../../../icon/calendar-arrow-up.png'); mask-image: url('../../../icon/calendar-arrow-up.png');">
             </span>
             <span class="label">Reservation</span>
           </button>
+        </a>
 
         <a href="../transactions/transaction1.php" class="nav-link-wrapper"></a>
           <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
