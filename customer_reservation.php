@@ -768,7 +768,6 @@ $stmt->closeCursor();
 </head>
 <body>
   <div class="app">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
