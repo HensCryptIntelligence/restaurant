@@ -64,7 +64,7 @@ include 'config_db.php';
           </button>
         </a>  
 
-        <a href="../transaction/index.php" class="nav-link-wrapper">
+        <a href="../transactions/transaction1.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="transaction" aria-label="Transaction">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

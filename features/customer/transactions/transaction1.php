@@ -124,6 +124,7 @@ if ($result = $mysqli->query($resSql)) {
       <div class="sidebar-top">
         <div class="brand">Bitehive</div>
 
+      <a href="../home/index.php" class="nav-link-wrapper">
         <nav class="nav" role="navigation" aria-label="Main navigation">
           <!-- perbaikan path: ../../../icon/... -->
           <button class="nav-item" id="nav-dashboard" aria-label="Dashboard" data-target="dashboard">
@@ -132,13 +133,16 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Dashboard</span>
           </button>
+        </a>
 
+        <a href="../orders/index.php" class="nav-link-wrapper">
           <button class="nav-item" id="nav-order" aria-label="Order" data-target="order">
             <span class="icon"
               style="-webkit-mask-image: url('../../../icon/chart-pie.png'); mask-image: url('../../../icon/chart-pie.png');">
             </span>
             <span class="label">Order</span>
           </button>
+        </a>
 
           <button class="nav-item" id="nav-reservation" aria-label="Reservation" data-target="reservation">
             <span class="icon"
@@ -147,12 +151,15 @@ if ($result = $mysqli->query($resSql)) {
             <span class="label">Reservation</span>
           </button>
 
+        <a href="../transactions/transaction1.php" class="nav-link-wrapper"></a>
           <button class="nav-item active" id="nav-transaction" aria-label="Transaction" data-target="transaction">
             <span class="icon"
               style="-webkit-mask-image: url('../../../icon/arrow-left-right.png'); mask-image: url('../../../icon/arrow-left-right.png');">
             </span>
             <span class="label">Transaction</span>
           </button>
+        </a>
+
         </nav>
       </div>
 

@@ -132,6 +132,8 @@ if ($result = $mysqli->query($resSql)) {
         <div class="brand">Bitehive</div>
 
         <nav class="nav">
+        
+        <a href="../dashboard/index.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="dashboard" aria-label="Dashboard">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -143,7 +145,9 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Dashboard</span>
           </button>
+        </a>  
 
+        <a href="../user_management/user_management.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="user" aria-label="User">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -153,7 +157,9 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">User</span>
           </button>
+        </a>  
 
+        <a href="../inventory/index.php" class="nav-link-wrapper">
           <button class="nav-item" data-target="inventory" aria-label="Inventory">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -165,6 +171,7 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Inventory</span>
           </button>
+        </a> 
 
           <button class="nav-item" data-target="reservation" aria-label="Reservation">
             <span class="icon-wrapper">
@@ -180,6 +187,7 @@ if ($result = $mysqli->query($resSql)) {
             <span class="label">Reservation</span>
           </button>
 
+        <a href="../transactions_management/transaction_admin.php" class="nav-link-wrapper">
           <button class="nav-item active" data-target="transaction" aria-label="Transaction">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -189,6 +197,7 @@ if ($result = $mysqli->query($resSql)) {
             </span>
             <span class="label">Transaction</span>
           </button>
+        </a>  
 
           <button class="nav-item" data-target="audit" aria-label="Audit Logs">
             <span class="icon-wrapper">
